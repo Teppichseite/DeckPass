@@ -5,11 +5,11 @@ import asyncio
 
 import os
 
-class KeyPassCli:
+class KeypassCli:
 
-    isOpen: bool = False
+    is_open: bool = False
 
-    async def open(self, dbPath: str, password: str):
+    async def open(self, db_path: str, password: str):
         command = [
             "LD_LIBRARY_PATH= ",
             "flatpak",
@@ -17,7 +17,7 @@ class KeyPassCli:
             "--command=keepassxc-cli",
             "org.keepassxc.KeePassXC",
             "open",
-            dbPath,
+            db_path,
         ]
 
         full_command = ["bash", "-c", " ".join(command)]
@@ -35,29 +35,29 @@ class KeyPassCli:
         result = await self.read(0.3)
 
         if len(result) != 1:
-            self.raiseOutOfOrderError()
+            self.raise_out_of_order_error()
             return
 
         if not result[0].startswith('Enter password to unlock '):
-            self.raiseOutOfOrderError()
+            self.raise_out_of_order_error()
             return
         
-        self.isOpen = True
+        self.is_open = True
 
     def close(self):
         self.process.terminate()
-        self.isOpen = False
+        self.is_open = False
 
-    async def runCommand(self, cmd: str, timeout: float):
+    async def run_command(self, cmd: str, timeout: float):
         await self.send(cmd)
         result = await self.read(timeout)
 
         if len(result) < 2:
-            self.raiseOutOfOrderError()
+            self.raise_out_of_order_error()
             return
 
         if not result[0].endswith(f'> {cmd}\n'):
-            self.raiseOutOfOrderError()
+            self.raise_out_of_order_error()
             return
         
         return result[1:]
@@ -78,60 +78,58 @@ class KeyPassCli:
                 break
         return output
     
-    def raiseOutOfOrderError(self):        
+    def raise_out_of_order_error(self):        
         raise ValueError("CLI results out of order!")
 
 
 class PasswordManager:
 
     entries: list[str] = []
-    keePassCli: KeyPassCli | None = None
+    keepass_cli: KeypassCli | None = None
 
-    def isOpen(self):
-        return not (self.keePassCli is not None or self.keePassCli.isOpen)
+    def is_open(self):
+        return not (self.keepass_cli is not None or self.keepass_cli.is_open)
     
-    def findDatabasePath(self):
-        folderPath = os.path.join(decky.DECKY_USER_HOME, 'DeckPass')
-        if not os.path.isdir(folderPath): 
+    def find_database_path(self):
+        folder_path = os.path.join(decky.DECKY_USER_HOME, 'DeckPass')
+        if not os.path.isdir(folder_path): 
             raise ValueError('No database file was found')
         
-        files = os.listdir(folderPath)
+        files = os.listdir(folder_path)
         files.sort()
-        databaseFiles = [f for f in files if f.endswith('.kdbx')]
+        database_files = [f for f in files if f.endswith('.kdbx')]
 
-        if len(databaseFiles) <= 0:
+        if len(database_files) <= 0:
             raise ValueError('No database file was found')
 
-        return os.path.join(folderPath, databaseFiles[0])
+        return os.path.join(folder_path, database_files[0])
 
     async def open(self, password: str):
+        self.keepass_cli = KeypassCli()
 
-        self.keePassCli = KeyPassCli()
+        db_path = self.find_database_path()
+        await self.keepass_cli.open(db_path, password)
 
-        dbPath = self.findDatabasePath()
-        await self.keePassCli.open(dbPath, password)
-
-        entries = await self.keePassCli.runCommand('ls -R -f', 0.3)
+        entries = await self.keepass_cli.run_command('ls -R -f', 0.3)
 
         decky.logger.info(entries)
 
         entries = [e.rstrip('\n') for e in entries]
-    
         self.entries = [e for e in entries if not e.endswith("/")]
 
     def close(self):
         self.entries = []
-        self.keePassCli.close()
-        self.keePassCli = None
+        self.keepass_cli.close()
+        self.keepass_cli = None
 
-    def getEntries(self):
+    def get_entries(self):
         return self.entries
 
-    async def getEntryDetails(self, entryName: str):
-        entryDetails = await self.keePassCli.runCommand(f'show -s {entryName}', 0.3)
+    async def get_entry_details(self, entry_name: str):
+        entry_details = await self.keepass_cli.run_command(f'show -s {entry_name}', 0.3)
 
-        username = entryDetails[1].split(":")[1].strip()
-        password = entryDetails[2].split(":")[1].strip()
+        username = entry_details[1].split(":")[1].strip()
+        password = entry_details[2].split(":")[1].strip()
 
         return [username, password]
 
@@ -142,26 +140,26 @@ class Plugin:
 
     states: dict[str, str] = dict()
 
-    async def isPasswordManagerOpen(self):
-        return self.pm.isOpen()
+    async def is_password_manager_open(self):
+        return self.pm.is_open()
 
-    async def openPasswordManager(self, password: str):
+    async def open_password_manager(self, password: str):
         await self.pm.open(password)
 
-    async def closePasswordManager(self):
+    async def close_password_manager(self):
         self.pm.close()
         self.states.clear()
 
-    async def getEntries(self):
-        return self.pm.getEntries()
+    async def get_entries(self):
+        return self.pm.get_entries()
 
-    async def getEntryDetails(self, entryName: str):
-        return await self.pm.getEntryDetails(entryName)
+    async def get_entry_details(self, entry_name: str):
+        return await self.pm.get_entry_details(entry_name)
 
-    async def setState(self, key: str, value: str):
+    async def set_state(self, key: str, value: str):
         self.states[key] = value
 
-    async def getState(self, key: str):
+    async def get_state(self, key: str):
         return self.states.get(key, "null")
 
     async def _main(self):
