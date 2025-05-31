@@ -11,6 +11,8 @@ export const InputModal = (props: InputModalProps) => {
 
     const [value, setValue] = useState<string>('');
 
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
     const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -26,15 +28,33 @@ export const InputModal = (props: InputModalProps) => {
         inputElement.type = 'password';
     }, [ref, ref.current]);
 
+    const onConfirm = async () => {
+        setIsLoading(true);
+        await props.onConfirm(value);
+        props.closeModal?.();
+    }
+
     return <ModalRoot onCancel={() => { props.closeModal?.() }}>
-        <div style={{ marginBottom: '20px', fontWeight: 'bold', fontSize: '20px' }}>{props.title}</div>
+        <div style={{
+            marginBottom: '20px',
+            fontWeight: 'bold',
+            fontSize: '20px'
+        }}>{props.title}</div>
         <div ref={ref}>
-            <TextField value={value} onChange={e => setValue(e.target.value)}></TextField>
+            <TextField
+                disabled={isLoading}
+                value={value}
+                onChange={e => setValue(e.target.value)}>
+            </TextField>
         </div>
-        <Button style={{ marginBottom: '20px', marginTop: '20px' }} className="DialogButton Secondary" onClick={async () => {
-            await props.onConfirm(value);
-            props.closeModal?.();
-        }}>Confirm</Button>
-        <Button className="DialogButton Secondary" onClick={() => props.closeModal?.()}>Cancel</Button>
+        <Button
+            disabled={isLoading}
+            style={{ marginBottom: '20px', marginTop: '20px' }}
+            className="DialogButton Secondary"
+            onClick={onConfirm}>Confirm</Button>
+        <Button
+            disabled={isLoading}
+            className="DialogButton Secondary"
+            onClick={() => props.closeModal?.()}>Cancel</Button>
     </ModalRoot>
 };

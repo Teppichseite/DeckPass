@@ -45,7 +45,7 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
             await callback();
         } catch (e) {
             toaster.toast({
-                title: 'Password Manager Errors',
+                title: 'DeckPass Error',
                 body: errorMessage
             });
             await setCurrentEntries(null);
@@ -58,12 +58,11 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         await setCurrentEntries(convertEntriesToItems(entries));
     }
 
-    const openPasswordManager = async (password: string) => {
-        await handleErrors('Failed to open Password MAnager', async () => {
+    const openPasswordManager = async (password: string) => handleErrors(
+        'Failed to open Database', async () => {
             await openPasswordManagerBe(password)
             await reloadEntries();
         });
-    };
 
     const closePasswordManager = async () => {
         await closePasswordManagerBe()
@@ -94,29 +93,30 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         }, 500);
     }
 
-    const toggleCurrentEntry = async (newCurrentEntry: Entry | null, displayMode: CurrentEntryDisplayMode) => {
-        if (!newCurrentEntry) {
-            setCurrentEntry(null);
-            return;
-        }
+    const toggleCurrentEntry = (newCurrentEntry: Entry | null, displayMode: CurrentEntryDisplayMode) =>
+        handleErrors('Failed to get details', async () => {
+            if (!newCurrentEntry) {
+                setCurrentEntry(null);
+                return;
+            }
 
-        if (displayMode === 'copy') {
-            await setCurrentEntry({
-                ...newCurrentEntry,
-                displayMode
-            });
-            return;
-        }
+            if (displayMode === 'copy') {
+                await setCurrentEntry({
+                    ...newCurrentEntry,
+                    displayMode
+                });
+                return;
+            }
 
-        if (displayMode === 'full') {
-            await setCurrentEntry({
-                ...newCurrentEntry,
-                displayMode,
-                details: await getEntryDetails(newCurrentEntry.path)
-            });
-            return;
-        }
-    };
+            if (displayMode === 'full') {
+                await setCurrentEntry({
+                    ...newCurrentEntry,
+                    displayMode,
+                    details: await getEntryDetails(newCurrentEntry.path)
+                });
+                return;
+            }
+        });
 
     const value: PasswordManagerContextValue = {
         currentEntries: currentEntries,
