@@ -5,7 +5,6 @@ import asyncio
 
 from collections import Counter
 
-
 class KeypassCli:
 
     is_open: bool = False
@@ -46,6 +45,7 @@ class KeypassCli:
     def close(self):
         self.process.terminate()
         self.is_open = False
+
 
     async def read_until_input_expected(self):
         await self.process.stdout.readuntil("> ".encode())
