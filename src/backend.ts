@@ -1,7 +1,6 @@
 import { callable } from "@decky/api";
 import { Entry } from "./interfaces";
 
-export const isPasswordManagerOpenBe = callable<[], boolean>("is_password_manager_open");
 export const openPasswordManagerBe = callable<[string], void>("open_password_manager");
 export const closePasswordManagerBe = callable<[], void>("close_password_manager");
 export const getEntriesBe = callable<[], string[]>("get_entries");
