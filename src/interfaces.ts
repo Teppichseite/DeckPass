@@ -13,6 +13,5 @@ export type CurrentEntryDetails = {
 
 export type CurrentEntry = Entry & {
     displayMode: CurrentEntryDisplayMode;
-    details?: CurrentEntryDetails;
 };
 

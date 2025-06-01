@@ -80,6 +80,7 @@ class KeypassCli:
         raise ValueError("CLI results out of order!")
 
 
+
 class PasswordManager:
 
     keepass_cli: KeypassCli | None = None
@@ -135,7 +136,6 @@ class PasswordManager:
         password = self.remove_last_newline(entry_details[1])
 
         return [username, password]
-
 
 class Plugin:
 

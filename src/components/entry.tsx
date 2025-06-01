@@ -10,7 +10,7 @@ export interface EntryComponentProps {
 
 export const EntryComponent = (props: EntryComponentProps) => {
 
-  const { toggleCurrentEntry, currentEntry, pasteEntryDetail } = usePasswordManagerContext();
+  const { toggleCurrentEntry, currentEntry, pasteEntryDetail, currentEntryDetails } = usePasswordManagerContext();
 
   const isCurrentEntry = currentEntry?.path === props.entry.path;
 
@@ -18,7 +18,7 @@ export const EntryComponent = (props: EntryComponentProps) => {
     paddingLeft: '20px'
   } : undefined;
 
-  const detailDescription = (detail?: string) => currentEntry?.displayMode === 'full'
+  const detailDescription = (detail?: string) => currentEntryDetails
     ? <div style={{
       fontSize: '15px',
       overflowWrap: 'break-word',
@@ -56,7 +56,7 @@ export const EntryComponent = (props: EntryComponentProps) => {
             icon={<FaUser></FaUser>}
             label="Username"
             onClick={() => pasteEntryDetail('username')}
-            description={detailDescription(currentEntry.details?.username)}
+            description={detailDescription(currentEntryDetails?.username)}
           >
             Paste
           </ButtonItem>
@@ -66,7 +66,7 @@ export const EntryComponent = (props: EntryComponentProps) => {
             label="Password"
             icon={<FaKey></FaKey>}
             onClick={() => pasteEntryDetail('password')}
-            description={detailDescription(currentEntry.details?.password)}
+            description={detailDescription(currentEntryDetails?.password)}
           >
             Paste
           </ButtonItem>

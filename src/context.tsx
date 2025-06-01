@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext, useEffect, useState } from "react";
 import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe } from "./backend";
 import React from "react";
 import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry } from "./interfaces";
@@ -14,6 +14,7 @@ export type UiState = 'loading' | 'error' | 'done';
 interface PasswordManagerContextValue {
     currentEntries: Entry[] | null;
     currentEntry: CurrentEntry | null;
+    currentEntryDetails: CurrentEntryDetails | null,
     openPasswordManager: (password: string) => Promise<void>;
     closePasswordManager: () => Promise<void>;
     pasteEntryDetail: (detail: keyof CurrentEntryDetails) => Promise<void>;
@@ -23,6 +24,7 @@ interface PasswordManagerContextValue {
 const PasswordManagerContext = createContext<PasswordManagerContextValue>({
     currentEntries: null,
     currentEntry: null,
+    currentEntryDetails: null,
     openPasswordManager: async () => { },
     closePasswordManager: async () => { },
     pasteEntryDetail: async () => { },
@@ -36,6 +38,8 @@ export interface PasswordMangerContextProviderProps {
 };
 
 export const PasswordMangerContextProvider = (props: PasswordMangerContextProviderProps) => {
+
+    const [currentEntryDetails, setCurrentEntryDetails] = useState<CurrentEntryDetails | null>(null);
 
     const [currentEntry, setCurrentEntry] = useBackendState<CurrentEntry | null>('currentEntry', null);
     const [currentEntries, setCurrentEntries] = useBackendState<Entry[] | null>('currentEntries', null);
@@ -94,34 +98,44 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         }, 500);
     }
 
-    const toggleCurrentEntry = (newCurrentEntry: Entry | null, displayMode: CurrentEntryDisplayMode) =>
+    const toggleCurrentEntry = async (newCurrentEntry: Entry | null, displayMode: CurrentEntryDisplayMode) => {
+        if (!newCurrentEntry) {
+            setCurrentEntry(null);
+            return;
+        }
+
+        if (displayMode === 'copy') {
+            await setCurrentEntry({
+                ...newCurrentEntry,
+                displayMode
+            });
+            return;
+        }
+
+        if (displayMode === 'full') {
+            await setCurrentEntry({
+                ...newCurrentEntry,
+                displayMode
+            });
+            return;
+        }
+    }
+
+    useEffect(() => {
+        if (currentEntry?.displayMode !== 'full') {
+            setCurrentEntryDetails(null);
+            return;
+        }
+
         handleErrors('Failed to get details', async () => {
-            if (!newCurrentEntry) {
-                setCurrentEntry(null);
-                return;
-            }
-
-            if (displayMode === 'copy') {
-                await setCurrentEntry({
-                    ...newCurrentEntry,
-                    displayMode
-                });
-                return;
-            }
-
-            if (displayMode === 'full') {
-                await setCurrentEntry({
-                    ...newCurrentEntry,
-                    displayMode,
-                    details: await getEntryDetails(newCurrentEntry.path)
-                });
-                return;
-            }
+            setCurrentEntryDetails(await getEntryDetails(currentEntry.path))
         });
+    }, [currentEntry, currentEntry?.displayMode])
 
     const value: PasswordManagerContextValue = {
-        currentEntries: currentEntries,
-        currentEntry: currentEntry,
+        currentEntries,
+        currentEntry,
+        currentEntryDetails,
         openPasswordManager,
         closePasswordManager,
         pasteEntryDetail,
