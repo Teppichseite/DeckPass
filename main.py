@@ -29,18 +29,13 @@ class KeypassCli:
             stderr=asyncio.subprocess.STDOUT,
         )
 
-        await asyncio.sleep(0.3)
+        password_prompt = await self.process.stdout.read(2000)
+        if not password_prompt.decode().startswith('Enter password to unlock'):
+            raise ValueError("CLI results out of order!")
+
         await self.send(password)
-        await asyncio.sleep(1)
-        result = await self.read(0.3)
-
-        if len(result) != 1:
-            self.raise_out_of_order_error()
-            return
-
-        if not result[0].startswith('Enter password to unlock '):
-            self.raise_out_of_order_error()
-            return
+        
+        await self.read_until_input_expected()
         
         self.is_open = True
 
@@ -48,18 +43,17 @@ class KeypassCli:
         self.process.terminate()
         self.is_open = False
 
+    async def read_until_input_expected(self):
+        await self.process.stdout.readuntil('> '.encode())
+
     async def run_command(self, cmd: str, timeout: float):
         await self.send(cmd)
         result = await self.read(timeout)
 
-        if len(result) < 2:
-            self.raise_out_of_order_error()
-            return
+        if len(result) < 1:
+            raise ValueError("CLI results out of order!")
 
-        if not result[0].endswith(f'> {cmd}\n'):
-            self.raise_out_of_order_error()
-            return
-        
+        await self.read_until_input_expected()
         return result[1:]
 
     async def send(self, value: str):
@@ -152,7 +146,10 @@ class Plugin:
         return self.pm.is_open()
 
     async def open_password_manager(self, password: str):
-        await self.pm.open(password)
+        try:
+            await asyncio.wait_for(self.pm.open(password), 10)
+        except:
+            raise ValueError('Failed to open database!')
 
     async def close_password_manager(self):
         self.pm.close()
@@ -162,7 +159,10 @@ class Plugin:
         return self.pm.get_entries()
 
     async def get_entry_details(self, entry_name: str):
-        return await self.pm.get_entry_details(entry_name)
+        try:
+            return await asyncio.wait_for(self.pm.get_entry_details(entry_name), 5)
+        except:
+            raise ValueError('Failed to get entry details!')
 
     async def set_state(self, key: str, value: str):
         self.states[key] = value

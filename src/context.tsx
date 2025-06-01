@@ -44,6 +44,7 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         try {
             await callback();
         } catch (e) {
+            console.error(e)
             toaster.toast({
                 title: 'DeckPass Error',
                 body: errorMessage
