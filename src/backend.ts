@@ -9,10 +9,34 @@ export const getEntryDetailsBe = callable<[string], [string, string]>("get_entry
 export const getStateBe = callable<[string], string>("get_state");
 export const setStateBe = callable<[string, string], void>("set_state");
 
-export const convertEntriesToItems = (entries: string[]): Entry[] => {
-    return entries.map(entry => ({
-        title: entry,
-        path: entry,
-        type: 'entry'
-    }));
+export const mapBeEntriesToEntries = (beEntries: string[]): Entry[] => {
+    return beEntries
+        .map(entry => {
+
+            const entryParts = entry.split('/');
+
+            const path = entry;
+
+            const title = entryParts.slice(-1)[0];
+
+            const folderPath = entryParts.length > 1
+                ? entryParts.slice(0, -1).join('/')
+                : undefined;
+
+            return {
+                path,
+                title,
+                folderPath
+            };
+        })
+        .sort((a, b) => a.path.localeCompare(b.path))
+        .sort((a, b) => {
+            const aHasFolder = !!a.folderPath;
+            const bHasFolder = !!b.folderPath;
+
+            if (aHasFolder && !bHasFolder) return 1;
+            if (!aHasFolder && bHasFolder) return -1;
+
+            return 0;
+        });
 };

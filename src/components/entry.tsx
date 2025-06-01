@@ -1,8 +1,8 @@
 import { ButtonItem } from "@decky/ui";
-import { FaCaretDown, FaCaretRight, FaUser, FaKey, FaInfoCircle, FaEye } from "react-icons/fa";
+import { FaCaretDown, FaCaretRight, FaUser, FaKey, FaInfoCircle, FaEye, FaFolder } from "react-icons/fa";
 import { usePasswordManagerContext } from "../context";
 import { Entry } from "../interfaces";
-import { ButtonItemIconContent } from "./shared";
+import { ButtonContentOverflow, ButtonItemIconContent } from "./shared";
 
 export interface EntryComponentProps {
   entry: Entry;
@@ -27,21 +27,25 @@ export const EntryComponent = (props: EntryComponentProps) => {
     : undefined;
 
   return <div>
-    <ButtonItem
-      layout="below"
-      onClick={() => {
-        if (isCurrentEntry) {
-          toggleCurrentEntry(null, 'copy');
-          return;
-        }
+    <ButtonContentOverflow>
+      <ButtonItem
+        layout="below"
+        onClick={() => {
+          if (isCurrentEntry) {
+            toggleCurrentEntry(null, 'copy');
+            return;
+          }
 
-        toggleCurrentEntry(props.entry, 'copy');
-      }}
-    >
-      <ButtonItemIconContent
-        icon={isCurrentEntry ? <FaCaretDown /> : <FaCaretRight />}
-      >{props.entry.title}</ButtonItemIconContent>
-    </ButtonItem>
+          toggleCurrentEntry(props.entry, 'copy');
+        }}
+        label={props.entry.folderPath}
+        icon={props.entry.folderPath ? <FaFolder/> : undefined}
+      >
+        <ButtonItemIconContent
+          icon={isCurrentEntry ? <FaCaretDown /> : <FaCaretRight />}
+        >{props.entry.title}</ButtonItemIconContent>
+      </ButtonItem>
+    </ButtonContentOverflow>
 
     <div style={style}>
 

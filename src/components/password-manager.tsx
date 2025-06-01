@@ -14,7 +14,7 @@ export const PasswordManagerClosed = () => {
     title={"Enter Database Password"}
     inputLabel={"Password"} />;
 
-  var gitHubLink = "https://github.com/Teppichseite/HandheldExp";
+  var gitHubLink = "https://github.com/Teppichseite/DeckPass";
 
   return (
     <PanelSection>
@@ -65,8 +65,7 @@ export const PasswordManagerOpened = () => {
         <div style={{ marginTop: '20px' }}></div>
       </PanelSectionRow>
       {
-        currentEntries.map(entry =>
-          <EntryComponent key={entry.path} entry={entry} />)
+        currentEntries.map(entry => <EntryComponent key={entry.path} entry={entry} />)
       }
     </PanelSection>
   );

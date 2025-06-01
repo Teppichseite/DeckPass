@@ -1,8 +1,8 @@
-import { createContext, useEffect, useState } from "react";
-import { closePasswordManagerBe, convertEntriesToItems, getEntriesBe, getEntryDetailsBe, isPasswordManagerOpenBe, openPasswordManagerBe } from "./backend";
+import { createContext } from "react";
+import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe } from "./backend";
 import React from "react";
 import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry } from "./interfaces";
-import { Router, sleep } from "@decky/ui";
+import { Router } from "@decky/ui";
 import { SteamClient } from "@decky/ui/dist/globals/steam-client";
 import { usePersistentState } from "./hooks";
 import { toaster } from "@decky/api";
@@ -55,7 +55,7 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
 
     const reloadEntries = async () => {
         let entries = await getEntriesBe();
-        await setCurrentEntries(convertEntriesToItems(entries));
+        await setCurrentEntries(mapBeEntriesToEntries(entries));
     }
 
     const openPasswordManager = async (password: string) => handleErrors(
