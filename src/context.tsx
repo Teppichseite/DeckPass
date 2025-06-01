@@ -4,7 +4,7 @@ import React from "react";
 import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry } from "./interfaces";
 import { Router } from "@decky/ui";
 import { SteamClient } from "@decky/ui/dist/globals/steam-client";
-import { usePersistentState } from "./hooks";
+import { useBackendState } from "./hooks";
 import { toaster } from "@decky/api";
 
 declare var SteamClient: SteamClient;
@@ -37,8 +37,8 @@ export interface PasswordMangerContextProviderProps {
 
 export const PasswordMangerContextProvider = (props: PasswordMangerContextProviderProps) => {
 
-    const [currentEntry, setCurrentEntry] = usePersistentState<CurrentEntry | null>('currentEntry', null);
-    const [currentEntries, setCurrentEntries] = usePersistentState<Entry[] | null>('currentEntries', null);
+    const [currentEntry, setCurrentEntry] = useBackendState<CurrentEntry | null>('currentEntry', null);
+    const [currentEntries, setCurrentEntries] = useBackendState<Entry[] | null>('currentEntries', null);
 
     const handleErrors = async (errorMessage: string, callback: () => Promise<void>) => {
         try {
@@ -60,7 +60,7 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
     }
 
     const openPasswordManager = async (password: string) => handleErrors(
-        'Failed to open Database', async () => {
+        'Failed to open database', async () => {
             await openPasswordManagerBe(password)
             await reloadEntries();
         });
