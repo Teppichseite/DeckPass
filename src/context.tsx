@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from "react";
-import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe } from "./backend";
+import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe, mapBeEntryDetailsToCurrentEntryDetails, mapBeSetupStateToSetupState, checkSetupStateBe } from "./backend";
 import React from "react";
-import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry } from "./interfaces";
+import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry, SetupState } from "./interfaces";
 import { Router } from "@decky/ui";
 import { SteamClient } from "@decky/ui/dist/globals/steam-client";
 import { useBackendState } from "./hooks";
@@ -14,7 +14,8 @@ export type UiState = 'loading' | 'error' | 'done';
 interface PasswordManagerContextValue {
     currentEntries: Entry[] | null;
     currentEntry: CurrentEntry | null;
-    currentEntryDetails: CurrentEntryDetails | null,
+    currentEntryDetails: CurrentEntryDetails | null;
+    setupState: SetupState | null;
     openPasswordManager: (password: string) => Promise<void>;
     closePasswordManager: () => Promise<void>;
     pasteEntryDetail: (detail: keyof CurrentEntryDetails) => Promise<void>;
@@ -25,6 +26,7 @@ const PasswordManagerContext = createContext<PasswordManagerContextValue>({
     currentEntries: null,
     currentEntry: null,
     currentEntryDetails: null,
+    setupState: null,
     openPasswordManager: async () => { },
     closePasswordManager: async () => { },
     pasteEntryDetail: async () => { },
@@ -43,6 +45,8 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
 
     const [currentEntry, setCurrentEntry] = useBackendState<CurrentEntry | null>('currentEntry', null);
     const [currentEntries, setCurrentEntries] = useBackendState<Entry[] | null>('currentEntries', null);
+
+    const [setupState, setSetupState] = useBackendState<SetupState | null>('setupState', null);
 
     const handleErrors = async (errorMessage: string, callback: () => Promise<void>) => {
         try {
@@ -75,12 +79,9 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
     };
 
     const getEntryDetails = async (entryPath: string): Promise<CurrentEntryDetails> => {
-        const [username, password] = await getEntryDetailsBe(entryPath);
+        const detailsBe = await getEntryDetailsBe(entryPath);
 
-        return {
-            username,
-            password
-        };
+        return mapBeEntryDetailsToCurrentEntryDetails(detailsBe);
     }
 
     const pasteEntryDetail = async (detail: keyof CurrentEntryDetails) => {
@@ -130,12 +131,19 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         handleErrors('Failed to get details', async () => {
             setCurrentEntryDetails(await getEntryDetails(currentEntry.path))
         });
-    }, [currentEntry, currentEntry?.displayMode])
+    }, [currentEntry, currentEntry?.displayMode]);
+
+    useEffect(() => {
+        handleErrors('Could not evaluate setup state', async () => {
+            setSetupState(mapBeSetupStateToSetupState(await checkSetupStateBe()))
+        });
+    }, []);
 
     const value: PasswordManagerContextValue = {
         currentEntries,
         currentEntry,
         currentEntryDetails,
+        setupState,
         openPasswordManager,
         closePasswordManager,
         pasteEntryDetail,

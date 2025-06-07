@@ -1,29 +1,45 @@
 import os
+import subprocess
 
 import decky
 import asyncio
 
 from collections import Counter
 
+
+
 class KeypassCli:
 
     is_open: bool = False
 
-    async def open(self, db_path: str, password: str):
+    def get_keyypass_command(self, *args: str):
         command = [
             "LD_LIBRARY_PATH= ",
             "flatpak",
             "run",
             "--command=keepassxc-cli",
             "org.keepassxc.KeePassXC",
-            "open",
-            db_path,
+            *args
         ]
 
         full_command = ["bash", "-c", " ".join(command)]
 
+        return full_command
+
+    def is_setup(self):
+        command = self.get_keyypass_command("-h")
+
+        decky.logger.info(command)
+
+        check_result = subprocess.run(command)
+
+        return check_result.returncode == 0
+        
+    async def open(self, db_path: str, password: str):
+        command = self.get_keyypass_command("open", db_path)
+
         self.process = await asyncio.create_subprocess_exec(
-            *full_command,
+            *command,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT,
@@ -42,10 +58,11 @@ class KeypassCli:
 
         self.is_open = True
 
+
+
     def close(self):
         self.process.terminate()
         self.is_open = False
-
 
     async def read_until_input_expected(self):
         await self.process.stdout.readuntil("> ".encode())
@@ -79,26 +96,37 @@ class KeypassCli:
     def raise_out_of_order_error(self):
         raise ValueError("CLI results out of order!")
 
-
-
 class PasswordManager:
 
     keepass_cli: KeypassCli | None = None
 
     def is_open(self):
         return not (self.keepass_cli is not None or self.keepass_cli.is_open)
+    
+    def get_database_folder(self):
+        return os.path.join(decky.DECKY_USER_HOME, "DeckPass")
+    
+    def check_setup_state(self):
+        is_keepass_setup = KeypassCli().is_setup()
 
-    def find_database_path(self):
-        folder_path = os.path.join(decky.DECKY_USER_HOME, "DeckPass")
+        database_folder = self.get_database_folder()
+
+        database_path = self.check_database_path()
+
+        return is_keepass_setup, database_folder, database_path
+
+    def check_database_path(self):
+        folder_path = self.get_database_folder()
         if not os.path.isdir(folder_path):
-            raise ValueError("No database file was found")
+            os.makedirs(folder_path)
+            return None
 
         files = os.listdir(folder_path)
         files.sort()
         database_files = [f for f in files if f.endswith(".kdbx")]
 
         if len(database_files) <= 0:
-            raise ValueError("No database file was found")
+           return None
 
         return os.path.join(folder_path, database_files[0])
 
@@ -108,7 +136,10 @@ class PasswordManager:
     async def open(self, password: str):
         self.keepass_cli = KeypassCli()
 
-        db_path = self.find_database_path()
+        db_path = self.check_database_path()
+        if db_path is None:
+            raise ValueError("Could not find Database")
+        
         await self.keepass_cli.open(db_path, password)
 
     def close(self):
@@ -121,6 +152,7 @@ class PasswordManager:
 
         entries = [self.remove_last_newline(e) for e in entries]
         entries = [e for e in entries if not e.endswith("/")]
+        entries = [e for e in entries if not e.endswith("[empty]")]
         entryCounts = Counter(entries)
         entries = [entry for entry in entries if entryCounts[entry] == 1]
         entries.sort()
@@ -129,7 +161,7 @@ class PasswordManager:
 
     async def get_entry_details(self, entry_name: str):
         entry_details = await self.keepass_cli.run_command(
-            f"show {entry_name} -s -a UserName -a Password", 0.3
+            f"show \"{entry_name}\" -s -a UserName -a Password", 0.3
         )
 
         username = self.remove_last_newline(entry_details[0])
@@ -143,11 +175,21 @@ class Plugin:
 
     states: dict[str, str] = dict()
 
+    async def check_setup_state(self):
+        try:
+            return self.pm.check_setup_state()
+        except:
+            error_message = "Failed to check setup state!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
+
     async def open_password_manager(self, password: str):
         try:
             await asyncio.wait_for(self.pm.open(password), 10)
         except:
-            raise ValueError("Failed to open database!")
+            error_message = "Failed to open password manager!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
 
     async def close_password_manager(self):
         self.pm.close()
@@ -155,15 +197,19 @@ class Plugin:
 
     async def get_entries(self):
         try:
-            return await self.pm.get_entries()
+            return await asyncio.wait_for(self.pm.get_entries(), 5)
         except:
-            raise ValueError("Failed to get entries!")
+            error_message = "Failed to get entries!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
 
     async def get_entry_details(self, entry_name: str):
         try:
             return await asyncio.wait_for(self.pm.get_entry_details(entry_name), 5)
         except:
-            raise ValueError("Failed to get entry details!")
+            error_message = "Failed to get entry details!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
 
     async def set_state(self, key: str, value: str):
         self.states[key] = value

@@ -1,3 +1,9 @@
+export type SetupState = {
+    areDependenciesSetup: boolean;
+    databaseFolderPath: string;
+    databasePath: string | null;
+}
+
 export type Entry = {
     path: string;
     title: string;
