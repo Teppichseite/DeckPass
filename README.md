@@ -35,9 +35,9 @@ The flow of communication between DeckPass and KeePassKC works in the following 
 2. Python backend checks if a .kdbx file is stored under the DeckPass folder
 3. If conditionas (1) and (2) apply, the database can be opened via a password
 4. The password will be entered into an input element and then sent in plain text to the python backend
-5. The Python backend starts the keepassxc-cli via the KeePassXC Flatpack as subprocess with the open command and the found database file
+5. The Python backend starts the `keepassxc-cli` via the KeePassXC Flatpack as subprocess with the open command and the found database file
 6. When the CLI asks for the database password, it will be sent to the CLI by writing to stdin
-7. After step (7) the database password will be not used at all anymore and also not stored anyhwere in the DeckPass frontend or Python backend
+7. After step (6) the database password will be not used at all anymore and also not stored anyhwere in the DeckPass frontend or Python backend
 
 ### KeyPassXC CLI command exchange
 1. Once the database was opened with a correct password KeyPassXC is in charge of all credential related security regarding memory protection
