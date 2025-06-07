@@ -53,3 +53,6 @@ The flow of communication between DeckPass and KeePassKC works in the following 
     1. Python Backend requests clear text credentials from KeyPassXC CLI
     2. Frontend closes the Quick Access Menu
     3. Frontend simulates Keyboard Input for the current application by calling `SteamClient.Input.ControllerKeyboardSendText(credential)`
+
+# Acknowledgments
+1. Release workflow taken from https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/.github/workflows/release.yml
