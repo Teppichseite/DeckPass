@@ -11,21 +11,9 @@ export interface EntryComponentProps {
 
 export const EntryComponent = (props: EntryComponentProps) => {
 
-  const { toggleCurrentEntry, currentEntry, pasteEntryDetail, currentEntryDetails } = usePasswordManagerContext();
+  const { toggleCurrentEntry, currentEntry } = usePasswordManagerContext();
 
   const isCurrentEntry = currentEntry?.path === props.entry.path;
-
-  const style: React.CSSProperties | undefined = isCurrentEntry ? {
-    paddingLeft: '20px'
-  } : undefined;
-
-  const detailDescription = (detail?: string) => currentEntryDetails
-    ? <div style={{
-      fontSize: '15px',
-      overflowWrap: 'break-word',
-      paddingTop: '10px'
-    }}>{detail}</div>
-    : undefined;
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -63,57 +51,77 @@ export const EntryComponent = (props: EntryComponentProps) => {
         </ButtonItem>
       </div>
     </ButtonContentOverflow>
-
-    <div style={style}>
-
-      {
-        isCurrentEntry && <>
-          <ButtonItem
-            layout="below"
-            icon={<FaUser></FaUser>}
-            label="Username"
-            onClick={() => pasteEntryDetail('username')}
-            description={detailDescription(currentEntryDetails?.username)}
-          >
-            Paste
-          </ButtonItem>
-
-          <ButtonItem
-            layout="below"
-            label="Password"
-            icon={<FaKey></FaKey>}
-            onClick={() => pasteEntryDetail('password')}
-            description={detailDescription(currentEntryDetails?.password)}
-          >
-            Paste
-          </ButtonItem>
-
-          {
-            currentEntry.displayMode === "copy"
-              ? <ButtonItem
-                layout="below"
-                label="Clear text"
-                icon={<FaEye></FaEye>}
-                onClick={() => {
-                  toggleCurrentEntry(currentEntry, 'full');
-                }}
-              >
-                Show
-              </ButtonItem>
-              : <ButtonItem
-                label="Clear text"
-                layout="below"
-                icon={<FaEye></FaEye>}
-                onClick={() => {
-                  toggleCurrentEntry(currentEntry, 'copy');
-                }}
-              >
-                Hide
-              </ButtonItem>
-          }
-        </>
-      }
-    </div>
-
+    {isCurrentEntry && <EntryContent />}
   </div>
+}
+
+export const EntryContent = () => {
+
+  const { pasteEntryDetail, currentEntryDetails, toggleCurrentEntry, currentEntry } = usePasswordManagerContext();
+
+  if (!currentEntry) {
+    return <div />;
+  }
+
+  const style: React.CSSProperties = {
+    paddingLeft: '20px'
+  };
+
+  const detailDescription = (detail?: string) => currentEntryDetails
+    ? <div style={{
+      fontSize: '15px',
+      overflowWrap: 'break-word',
+      paddingTop: '10px'
+    }}>{detail}</div>
+    : undefined;
+
+  return <div style={style}>
+    {
+      <>
+        <ButtonItem
+          layout="below"
+          icon={<FaUser></FaUser>}
+          label="Username"
+          onClick={() => pasteEntryDetail('username')}
+          description={detailDescription(currentEntryDetails?.username)}
+        >
+          Paste
+        </ButtonItem>
+
+        <ButtonItem
+          layout="below"
+          label="Password"
+          icon={<FaKey></FaKey>}
+          onClick={() => pasteEntryDetail('password')}
+          description={detailDescription(currentEntryDetails?.password)}
+        >
+          Paste
+        </ButtonItem>
+
+        {
+          currentEntry.displayMode === "copy"
+            ? <ButtonItem
+              layout="below"
+              label="Clear text"
+              icon={<FaEye></FaEye>}
+              onClick={() => {
+                toggleCurrentEntry(currentEntry, 'full');
+              }}
+            >
+              Show
+            </ButtonItem>
+            : <ButtonItem
+              label="Clear text"
+              layout="below"
+              icon={<FaEye></FaEye>}
+              onClick={() => {
+                toggleCurrentEntry(currentEntry, 'copy');
+              }}
+            >
+              Hide
+            </ButtonItem>
+        }
+      </>
+    }
+  </div>;
 }

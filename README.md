@@ -14,9 +14,9 @@ Interally it uses KeePassXC.
 2. Open DeckPass in the Steam Quick Access Menu
 3. For the first time setup either follow the Setup Guide within the plugin or the steps described here:
     1. Go to Desktop mode
-    2. Install the KeePassXC (`org.keepassxc.KeePassXC`) flatpack
+    2. Install the KeePassXC (`org.keepassxc.KeePassXC`) Flatpack
         - Either via Discover store
-        - Or by running flatpak `flatpak install --user flathub org.keepassxc.KeePassXC`
+        - Or by running `flatpak install --user flathub org.keepassxc.KeePassXC`
     3. Open KeePassXC and create a new Database with a password
     4. Add your entries. You can edit the Database later as often as you want
     5. Save the Database under the DeckPass folder within your user directory under the `DeckPass` folder (e.g. `/home/deck/DeckPass`)
