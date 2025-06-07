@@ -1,5 +1,5 @@
 # DeckPass
-DeckPass is a Decky Plugin access passwords directly in SteamOS gaming mode.
+DeckPass is a Decky Plugin to access passwords directly in SteamOS gaming mode.
 Interally it uses KeePassXC.
 
 <p float="left">
@@ -10,11 +10,17 @@ Interally it uses KeePassXC.
 ## Plugin Setup
 1. You can install the Plugin in two ways:
     1. Download the Plugin from the Decky Plugin Store (Not available yet)
-    2. Build the plugin yourself as described here
+    2. Build the plugin yourself
 2. Open DeckPass in the Steam Quick Access Menu
-3. For the first time setup follow the Setup Guide displayed on the screen
-
-## Plugin usage
+3. For the first time setup either follow the Setup Guide within the plugin or the steps described here:
+    1. Go to Desktop mode
+    2. Install the KeePassXC (`org.keepassxc.KeePassXC`) flatpack
+        - Either via Discover store
+        - Or by running flatpak `flatpak install --user flathub org.keepassxc.KeePassXC`
+    3. Open KeePassXC and create a new Database with a password
+    4. Add your entries. You can edit the Database later as often as you want
+    5. Save the Database under the DeckPass folder within your user directory under the `DeckPass` folder (e.g. `/home/deck/DeckPass`)
+    6. Database path could look like this then: `/home/deck/DeckPass/passwords.kdbx`
 
 ## Security considerations
 1. DeckPass serves only as a frontend for KeePassXC and itself does not store any credentials persistently
@@ -25,7 +31,7 @@ Interally it uses KeePassXC.
 The flow of communication between DeckPass and KeePassKC works in the following way:
 
 ### Database opening
-1. Python backend checks if the KeePassXC flatpack contains the keepassxc-cli by calling it once
+1. Python backend checks if the KeePassXC flatpack contains `keepassxc-cli` by calling the program once
 2. Python backend checks if a .kdbx file is stored under the DeckPass folder
 3. If conditionas (1) and (2) apply, the database can be opened via a password
 4. The password will be entered into an input element and then sent in plain text to the python backend
@@ -39,13 +45,11 @@ The flow of communication between DeckPass and KeePassKC works in the following 
 3. Python Backend then sends CLI commands via stdin to the process and reads results from stdout
 
 ### Credential details and pasting
-1. Credential showcase in DeckPass
+1. **Credential showcase in DeckPass**
     1. Python Backend requests clear text credentials from KeyPassXC CLI
     2. Frontend displays credentials
     3. Credentials are only stored in memory as long as the credentials are displayed
-2. Credential pasting to other applications
+2. **Credential pasting to other applications**
     1. Python Backend requests clear text credentials from KeyPassXC CLI
     2. Frontend closes the Quick Access Menu
     3. Frontend simulates Keyboard Input for the current application by calling `SteamClient.Input.ControllerKeyboardSendText(credential)`
-
-### Build the plugin

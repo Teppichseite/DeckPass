@@ -5,7 +5,7 @@
   "api_version": 1,
   "publish": {
     "tags": ["template", "root"],
-    "description": "A keypass integration",
-    "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
+    "description": "DeckPass is a Decky Plugin to access passwords directly in SteamOS gaming mode. Interally it uses KeePassXC.",
+    "image": "https://raw.githubusercontent.com/Teppichseite/DeckPass/refs/heads/main/assets/deck.jpg"
   }
 }
