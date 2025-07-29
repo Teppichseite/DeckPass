@@ -8,11 +8,13 @@ Interally it uses KeePassXC.
 </p>
 
 ## Plugin Setup
-1. You can install the Plugin in two ways:
+0. Before installing, make sure that your localization is `LANG=en_US.UTF-8` the plugin depends on the localization,
+    and if your localization differs, install it in en with the command `sudo localectl set-locale LANG=en_US.UTF-8 && sudo reboot`
+2. You can install the Plugin in two ways:
     1. Download the Plugin from the Decky Plugin Store (Not available yet)
     2. Build the plugin yourself
-2. Open DeckPass in the Steam Quick Access Menu
-3. For the first time setup either follow the Setup Guide within the plugin or the steps described here:
+3. Open DeckPass in the Steam Quick Access Menu
+4. For the first time setup either follow the Setup Guide within the plugin or the steps described here:
     1. Go to Desktop mode
     2. Install the KeePassXC (`org.keepassxc.KeePassXC`) Flatpack
         - Either via Discover store
