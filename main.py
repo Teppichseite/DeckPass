@@ -12,8 +12,24 @@ class KeypassCli:
 
     is_open: bool = False
 
+    def find_english_utf8_locale(self):
+        try:
+            locales = subprocess.check_output(["locale", "-a"], text=True).splitlines()
+        except Exception:
+            return "C"
+
+        for candidate in ("C.UTF-8", "en_US.UTF-8", "en_US.utf8"):
+            if candidate in locales:
+                return candidate
+        return "C"
+
     def get_keyypass_command(self, *args: str):
+
+        en_locale = self.find_english_utf8_locale()
+
         command = [
+            f'LANG={en_locale}',
+            f'LC_ALL={en_locale}',
             "LD_LIBRARY_PATH= ",
             "flatpak",
             "run",
