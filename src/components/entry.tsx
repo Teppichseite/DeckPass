@@ -5,6 +5,18 @@ import { Entry } from "../interfaces";
 import { ButtonContentOverflow, ButtonItemIconContent } from "./shared";
 import { useEffect, useRef } from "react";
 
+interface DetailDescriptionProps {
+  children?: string;
+}
+
+const DetailDescription = ({ children }: DetailDescriptionProps) =>
+  children ? <div style={{
+    fontSize: '15px',
+    overflowWrap: 'break-word',
+    paddingTop: '10px'
+  }}>{children}</div>
+    : undefined;
+
 export interface EntryComponentProps {
   entry: Entry;
 }
@@ -44,6 +56,9 @@ export const EntryComponent = (props: EntryComponentProps) => {
           }}
           label={props.entry.folderPath}
           icon={props.entry.folderPath ? <FaFolder /> : undefined}
+          description={isCurrentEntry
+            ? <DetailDescription>Select an input field before clicking on the paste button for your credentials.</DetailDescription>
+            : undefined}
         >
           <ButtonItemIconContent
             icon={isCurrentEntry ? <FaCaretDown /> : <FaCaretRight />}
@@ -67,14 +82,6 @@ export const EntryContent = () => {
     paddingLeft: '20px'
   };
 
-  const detailDescription = (detail?: string) => currentEntryDetails
-    ? <div style={{
-      fontSize: '15px',
-      overflowWrap: 'break-word',
-      paddingTop: '10px'
-    }}>{detail}</div>
-    : undefined;
-
   return <div style={style}>
     {
       <>
@@ -83,7 +90,7 @@ export const EntryContent = () => {
           icon={<FaUser></FaUser>}
           label="Username"
           onClick={() => pasteEntryDetail('username')}
-          description={detailDescription(currentEntryDetails?.username)}
+          description={<DetailDescription>{currentEntryDetails?.username}</DetailDescription>}
         >
           Paste
         </ButtonItem>
@@ -93,7 +100,7 @@ export const EntryContent = () => {
           label="Password"
           icon={<FaKey></FaKey>}
           onClick={() => pasteEntryDetail('password')}
-          description={detailDescription(currentEntryDetails?.password)}
+          description={<DetailDescription>{currentEntryDetails?.password}</DetailDescription>}
         >
           Paste
         </ButtonItem>

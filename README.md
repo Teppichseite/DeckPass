@@ -22,6 +22,10 @@ Interally it uses KeePassXC.
     5. Save the Database under the DeckPass folder within your user directory under the `DeckPass` folder (e.g. `/home/deck/DeckPass`)
     6. Database path could look like this then: `/home/deck/DeckPass/passwords.kdbx`
 
+## Known issues
+1. When using Big Picture mode in Desktop mode, credential pasting does only work within the Steam interface, but not within games
+2. Due to a limitation of KeePass, entries which have the same name within the same folder are not being displayed
+
 ## Security considerations
 1. DeckPass serves only as a frontend for KeePassXC and itself does not store any credentials persistently
 2. Once a database was opened, it stays open as long as KeePassXC decides it stays open
