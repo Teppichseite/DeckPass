@@ -1,10 +1,10 @@
 {
   "name": "DeckPass",
   "author": "Teppichseite",
-  "flags": ["debug", "_root"],
+  "flags": ["debug"],
   "api_version": 1,
   "publish": {
-    "tags": ["template", "root"],
+    "tags": ["password", "password-manager", "keepass", "utility"],
     "description": "DeckPass is a Decky Plugin to access passwords directly in SteamOS gaming mode. Interally it uses KeePassXC.",
     "image": "https://raw.githubusercontent.com/Teppichseite/DeckPass/refs/heads/main/assets/deck.jpg"
   }
