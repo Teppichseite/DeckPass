@@ -1,6 +1,6 @@
 # DeckPass
 DeckPass is a Decky Plugin to access passwords directly in SteamOS gaming mode.
-Interally it uses KeePassXC.
+Internally it uses KeePassXC.
 
 <p float="left">
 <img src="./assets/deck-pass-closed.jpg" alt="Showcase video" width="300"/>
