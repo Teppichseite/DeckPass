@@ -21,3 +21,5 @@ export type CurrentEntry = Entry & {
     displayMode: CurrentEntryDisplayMode;
 };
 
+export type KeepassFlatpakInstallState = 'initial' | 'installing' | 'done' | 'error';
+

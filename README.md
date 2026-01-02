@@ -3,24 +3,20 @@ DeckPass is a Decky Plugin to access passwords directly in SteamOS gaming mode.
 Internally it uses KeePassXC.
 
 <p float="left">
-<img src="./assets/deck-pass-closed.jpg" alt="Showcase video" width="300"/>
-<img src="./assets/deck-pass-opened.jpg" alt="Showcase static" width="300"/>
+<img src="./assets/screenshot1.jpg" alt="Showcase video" width="300"/>
+<img src="./assets/screenshot2.jpg" alt="Showcase static" width="300"/>
 </p>
 
 ## Plugin Setup
 1. You can install the Plugin in two ways:
-    1. Download the Plugin from the Decky Plugin Store (Not available yet)
-    2. Build the plugin yourself
+    1. Download the plugin from the Decky Plugin Store (Not available yet)
+    2. Install the plugin from the releases page
+    3. Build the plugin yourself
 2. Open DeckPass in the Steam Quick Access Menu
-3. For the first time setup either follow the Setup Guide within the plugin or the steps described here:
-    1. Go to Desktop mode
-    2. Install the KeePassXC (`org.keepassxc.KeePassXC`) Flatpack
-        - Either via Discover store
-        - Or by running `flatpak install --user flathub org.keepassxc.KeePassXC`
-    3. Open KeePassXC and create a new Database with a password
-    4. Add your entries. You can edit the Database later as often as you want
-    5. Save the Database under the DeckPass folder within your user directory under the `DeckPass` folder (e.g. `/home/deck/DeckPass`)
-    6. Database path could look like this then: `/home/deck/DeckPass/passwords.kdbx`
+3. Follow the Setup Guide displayed in the plugin menu
+4. If installing the KeePassXC Flatpak via the button fais you have the following options
+    1. Install the KeePassXC Flatpak manually via the Discover Store
+    2. Or ŕun the following command `flatpak install --user flathub org.keepassxc.KeePassXC`
 
 ## Known issues
 1. When using Big Picture mode in Desktop mode, credential pasting does only work within the Steam interface, but not within games
@@ -60,3 +56,4 @@ The flow of communication between DeckPass and KeePassKC works in the following 
 
 # Acknowledgments
 1. Release workflow taken from https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/.github/workflows/release.yml
+2. Steam Shortcut assets under `./assets/shortcut` are taken from https://www.steamgriddb.com/

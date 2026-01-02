@@ -1,5 +1,5 @@
 import { PanelSection, PanelSectionRow, ButtonItem, showModal, findSP } from "@decky/ui";
-import { FaKey, FaLock, FaLockOpen } from "react-icons/fa";
+import { FaEdit, FaKey, FaLock, FaLockOpen, FaPlus } from "react-icons/fa";
 import { usePasswordManagerContext } from "../context";
 import { InputModal } from "./modal";
 import { EntryComponent } from "./entry";
@@ -8,7 +8,7 @@ import { SetupGuide } from "./setup-guide";
 
 export const PasswordManagerClosed = () => {
 
-  const { openPasswordManager, setupState } = usePasswordManagerContext();
+  const { openPasswordManager, setupState, editPasswordManager } = usePasswordManagerContext();
 
   const isSetup = setupState?.areDependenciesSetup && !!setupState?.databasePath;
 
@@ -40,6 +40,17 @@ export const PasswordManagerClosed = () => {
           onClick={() => showModal(passwordModal, findSP())}
         >
           <ButtonItemIconContent icon={<FaLockOpen />}>Open Database</ButtonItemIconContent>
+        </ButtonItem>
+
+        <ButtonItem
+          layout="below"
+          disabled={!setupState?.areDependenciesSetup}
+          onClick={() => editPasswordManager()}
+        >
+          <ButtonItemIconContent
+            icon={!!setupState?.databasePath ? <FaEdit /> : <FaPlus />}>
+            {!!setupState?.databasePath ? 'Edit Database' : 'Create Database'}
+          </ButtonItemIconContent>
         </ButtonItem>
 
         <SetupGuide />

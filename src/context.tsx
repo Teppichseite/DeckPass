@@ -1,11 +1,13 @@
 import { createContext, useEffect, useState } from "react";
-import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe, mapBeEntryDetailsToCurrentEntryDetails, mapBeSetupStateToSetupState, checkSetupStateBe } from "./backend";
+import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe, mapBeEntryDetailsToCurrentEntryDetails, mapBeSetupStateToSetupState, checkSetupStateBe, installKeepassFlatpakBe, checkKeepassFlatpakInstallStateBe } from "./backend";
 import React from "react";
-import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry, SetupState } from "./interfaces";
+import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry, KeepassFlatpakInstallState, SetupState } from "./interfaces";
 import { Router } from "@decky/ui";
-import { SteamClient } from "@decky/ui/dist/globals/steam-client";
+import { SteamClient } from "@decky/ui/dist/globals/SteamClient";
+
 import { useBackendState } from "./hooks";
 import { toaster } from "@decky/api";
+import { runKeepassShortcut } from "./utils";
 
 declare var SteamClient: SteamClient;
 
@@ -16,10 +18,13 @@ interface PasswordManagerContextValue {
     currentEntry: CurrentEntry | null;
     currentEntryDetails: CurrentEntryDetails | null;
     setupState: SetupState | null;
+    keepassFlatpakInstallState: KeepassFlatpakInstallState;
     openPasswordManager: (password: string) => Promise<void>;
+    editPasswordManager: () => Promise<void>;
     closePasswordManager: () => Promise<void>;
     pasteEntryDetail: (detail: keyof CurrentEntryDetails) => Promise<void>;
     toggleCurrentEntry: (newCurrentEntry: Entry | null, displayMode: CurrentEntryDisplayMode) => Promise<void>;
+    installKeepassFlatpak: () => Promise<void>;
 }
 
 const PasswordManagerContext = createContext<PasswordManagerContextValue>({
@@ -27,10 +32,13 @@ const PasswordManagerContext = createContext<PasswordManagerContextValue>({
     currentEntry: null,
     currentEntryDetails: null,
     setupState: null,
+    keepassFlatpakInstallState: 'initial',
     openPasswordManager: async () => { },
+    editPasswordManager: async () => { },
     closePasswordManager: async () => { },
     pasteEntryDetail: async () => { },
-    toggleCurrentEntry: async () => { }
+    toggleCurrentEntry: async () => { },
+    installKeepassFlatpak: async () => { }
 });
 
 PasswordManagerContext
@@ -47,6 +55,8 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
     const [currentEntries, setCurrentEntries] = useBackendState<Entry[] | null>('currentEntries', null);
 
     const [setupState, setSetupState] = useBackendState<SetupState | null>('setupState', null);
+
+    const [keepassFlatpakInstallState, setKeepassFlatpakInstallState] = useState<KeepassFlatpakInstallState>('initial');
 
     const handleErrors = async (errorMessage: string, callback: () => Promise<void>) => {
         try {
@@ -99,6 +109,10 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         }, 500);
     }
 
+    const editPasswordManager = async () => {
+        await runKeepassShortcut(setupState?.databasePath);
+    }
+
     const toggleCurrentEntry = async (newCurrentEntry: Entry | null, displayMode: CurrentEntryDisplayMode) => {
         if (!newCurrentEntry) {
             setCurrentEntry(null);
@@ -137,6 +151,36 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         handleErrors('Could not evaluate setup state', async () => {
             setSetupState(mapBeSetupStateToSetupState(await checkSetupStateBe()))
         });
+    }, [keepassFlatpakInstallState]);
+
+    const installKeepassFlatpak = async () => {
+        installKeepassFlatpakBe().then(() => { });
+        setKeepassFlatpakInstallState('installing');
+    };
+
+    useEffect(() => {
+        if(keepassFlatpakInstallState !== 'installing') {
+            return;
+        }
+
+        const refreshMs = 5 * 1000;
+        let interval = setInterval(async () => {
+            const installState = await checkKeepassFlatpakInstallStateBe();
+            setKeepassFlatpakInstallState(installState);
+            if (['done', 'error'].includes(installState)) {
+                clearInterval(interval);
+            }
+        }, refreshMs);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [keepassFlatpakInstallState, setKeepassFlatpakInstallState]);
+
+    useEffect(() => {
+        checkKeepassFlatpakInstallStateBe().then((installState) => {
+            setKeepassFlatpakInstallState(installState);
+        });
     }, []);
 
     const value: PasswordManagerContextValue = {
@@ -144,10 +188,13 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         currentEntry,
         currentEntryDetails,
         setupState,
+        keepassFlatpakInstallState,
         openPasswordManager,
+        editPasswordManager,
         closePasswordManager,
         pasteEntryDetail,
-        toggleCurrentEntry
+        toggleCurrentEntry,
+        installKeepassFlatpak,
     };
 
     return <PasswordManagerContext.Provider value={value}>

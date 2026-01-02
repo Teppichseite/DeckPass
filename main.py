@@ -6,7 +6,57 @@ import asyncio
 
 from collections import Counter
 
+class KeypassFlatpak:
+    install_state: str = "initial"
 
+    async def install(self):
+
+        self.install_state = "installing"
+
+        commandAddRemote = [
+            "LD_LIBRARY_PATH= ",
+            "flatpak",
+            "remote-add",
+            "--user",
+            "--if-not-exists",
+            "flathub",
+            "https://dl.flathub.org/repo/flathub.flatpakrepo"
+        ]
+
+        commandInstallFlatpak = [
+            "LD_LIBRARY_PATH= ",
+            "flatpak",
+            "install",
+            "--user",  
+            "flathub",
+            "org.keepassxc.KeePassXC",
+            "-y"
+        ]
+
+        full_command = [
+            "bash", 
+            "-c", 
+            f"{' '.join(commandAddRemote)} && {' '.join(commandInstallFlatpak)}"
+        ]
+
+        decky.logger.info(f"Installing KeypassXC Flatpak: {' '.join(full_command)}")
+        process = await asyncio.create_subprocess_exec(
+            *full_command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        _, stderr = await process.communicate()
+
+        if process.returncode != 0:
+            self.install_state = "error"
+            error_msg = stderr.decode() if stderr else "Unknown error"
+            decky.logger.error(f"Failed to install KeypassXC Flatpak: {error_msg}", exc_info=True)
+            raise ValueError("Failed to install KeypassXC Flatpak")
+
+        decky.logger.info(f"KeypassXC Flatpak installed successfully")
+
+        self.install_state = "done"
 
 class KeypassCli:
 
@@ -44,8 +94,6 @@ class KeypassCli:
 
     def is_setup(self):
         command = self.get_keyypass_command("-h")
-
-        decky.logger.info(command)
 
         check_result = subprocess.run(command)
 
@@ -191,11 +239,24 @@ class Plugin:
 
     states: dict[str, str] = dict()
 
+    keepass_flatpak: KeypassFlatpak = KeypassFlatpak()
+
     async def check_setup_state(self):
         try:
             return self.pm.check_setup_state()
         except:
             error_message = "Failed to check setup state!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
+
+    async def check_keepass_flatpak_install_state(self):
+        return self.keepass_flatpak.install_state
+
+    async def install_keepass_flatpak(self):
+        try:
+            await self.keepass_flatpak.install();
+        except:
+            error_message = "Failed to install KeypassXC Flatpak!"
             decky.logger.error(error_message, exc_info=True)
             raise ValueError(error_message)
 
@@ -233,7 +294,7 @@ class Plugin:
     async def get_state(self, key: str):
         return self.states.get(key, "null")
 
-    async def _main(self):
+    async def _main(self): 
         pass
 
     async def _unload(self):
