@@ -14,7 +14,7 @@ Internally it uses KeePassXC.
     3. Build the plugin yourself
 2. Open DeckPass in the Steam Quick Access Menu
 3. Follow the Setup Guide displayed in the plugin menu
-4. If installing the KeePassXC Flatpak via the button fais you have the following options
+4. If installing the KeePassXC Flatpak via the button fails you have the following options:
     1. Install the KeePassXC Flatpak manually via the Discover Store
     2. Or ŕun the following command `flatpak install --user flathub org.keepassxc.KeePassXC`
 
