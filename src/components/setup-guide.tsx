@@ -59,7 +59,8 @@ const KeypassInstallSteps = () => {
     const [buttonIcon, buttonText] = buttonStates[installState];
 
     return <div>
-        <h4><strong>1. Install KeePassXC</strong></h4>
+        <h4><strong>1. Install KeePassXC: {isDoneText(!!setupState?.areDependenciesSetup)}</strong></h4>
+        
         <strong>Click</strong> the button below to install the <strong>KeePassXC Flatpak</strong>
         <ButtonItem
             layout="below"
@@ -83,7 +84,7 @@ const DatabaseCreateSteps = () => {
     const listStyle = { paddingInlineStart: '25px' }
 
     return <div>
-        <h4><strong>2. Create a Database</strong></h4>
+        <h4><strong>2. Create a Database: {isDoneText(!!setupState?.databasePath)}</strong></h4>
         <ol style={listStyle}>
             <li>
                 Click on <strong>"Create Database"</strong>
