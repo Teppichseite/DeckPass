@@ -1,12 +1,12 @@
 import { ButtonItem } from "@decky/ui";
-import { FaCaretDown, FaCaretRight, FaUser, FaKey, FaEye, FaFolder } from "react-icons/fa";
+import { FaCaretDown, FaCaretRight, FaUser, FaKey, FaEye, FaFolder, FaPaste, FaAlignLeft, FaEyeSlash, FaInfoCircle } from "react-icons/fa";
 import { usePasswordManagerContext } from "../context";
 import { Entry } from "../interfaces";
 import { ButtonContentOverflow, ButtonItemIconContent } from "./shared";
 import { useEffect, useRef } from "react";
 
 interface DetailDescriptionProps {
-  children?: string;
+  children?: React.ReactNode;
 }
 
 const DetailDescription = ({ children }: DetailDescriptionProps) =>
@@ -16,6 +16,19 @@ const DetailDescription = ({ children }: DetailDescriptionProps) =>
     paddingTop: '10px'
   }}>{children}</div>
     : undefined;
+
+export const PastingInstructions = () => {
+  return <DetailDescription>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px', marginTop: '5px' }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <FaInfoCircle size={18} />
+      </div>
+      <div style={{ flex: 4 }}>
+        <strong>Select</strong> an input field <strong>before</strong> clicking on the paste button.
+      </div>
+    </div>
+  </DetailDescription>
+}
 
 export interface EntryComponentProps {
   entry: Entry;
@@ -57,7 +70,7 @@ export const EntryComponent = (props: EntryComponentProps) => {
           label={props.entry.folderPath}
           icon={props.entry.folderPath ? <FaFolder /> : undefined}
           description={isCurrentEntry
-            ? <DetailDescription>Select an input field before clicking on the paste button for your credentials.</DetailDescription>
+            ? <PastingInstructions />
             : undefined}
         >
           <ButtonItemIconContent
@@ -109,8 +122,8 @@ export const EntryContent = () => {
           currentEntry.displayMode === "copy"
             ? <ButtonItem
               layout="below"
-              label="Clear text"
-              icon={<FaEye></FaEye>}
+              label="Credentials"
+              icon={<FaEye />}
               onClick={() => {
                 toggleCurrentEntry(currentEntry, 'full');
               }}
@@ -118,9 +131,9 @@ export const EntryContent = () => {
               Show
             </ButtonItem>
             : <ButtonItem
-              label="Clear text"
+              label="Credentials"
               layout="below"
-              icon={<FaEye></FaEye>}
+              icon={<FaEyeSlash />}
               onClick={() => {
                 toggleCurrentEntry(currentEntry, 'copy');
               }}
