@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 export interface InputModalProps extends ModalRootProps {
     onConfirm: (input: string) => Promise<void>;
     title: React.ReactNode;
-    inputLabel: React.ReactNode;
+    isPassword?: boolean;
 }
 
 export const InputModal = (props: InputModalProps) => {
@@ -13,20 +13,45 @@ export const InputModal = (props: InputModalProps) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const ref = useRef<HTMLDivElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (!ref.current) {
+        const setInputType = () => {
+            if (!wrapperRef.current) {
+                return;
+            }
+
+            const inputElement = wrapperRef.current.querySelector('input') as HTMLInputElement;
+
+            if (!inputElement) {
+                return;
+            }
+
+            const targetType = !props.isPassword ? 'text' : 'password';
+            if (inputElement.type !== targetType) {
+                inputElement.type = targetType;
+            }
+        };
+
+        setInputType();
+
+        if (!wrapperRef.current) {
             return;
         }
 
-        const inputElement = ref.current.querySelector('input');
-        if (!inputElement) {
-            return;
-        }
+        const observer = new MutationObserver(() => {
+            setInputType();
+        });
 
-        inputElement.type = 'password';
-    }, [ref, ref.current]);
+        observer.observe(wrapperRef.current, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['type']
+        });
+
+        return () => observer.disconnect();
+    }, [props.isPassword]);
 
     const onConfirm = async () => {
         setIsLoading(true);
@@ -40,10 +65,11 @@ export const InputModal = (props: InputModalProps) => {
             fontWeight: 'bold',
             fontSize: '20px'
         }}>{props.title}</div>
-        <div ref={ref}>
+        <div ref={wrapperRef}>
             <TextField
                 disabled={isLoading}
                 value={value}
+                bIsPassword={true}
                 onChange={e => setValue(e.target.value)}>
             </TextField>
         </div>

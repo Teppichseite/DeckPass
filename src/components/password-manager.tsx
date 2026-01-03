@@ -14,8 +14,9 @@ export const PasswordManagerClosed = () => {
 
   const passwordModal = <InputModal
     onConfirm={(password) => openPasswordManager(password)}
-    title={"Enter Database Password"}
-    inputLabel={"Password"} />;
+    title="Enter Database Password"
+    isPassword={true}
+    />;
 
   return (
     <PanelSection>

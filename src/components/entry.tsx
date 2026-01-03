@@ -1,5 +1,5 @@
 import { ButtonItem } from "@decky/ui";
-import { FaCaretDown, FaCaretRight, FaUser, FaKey, FaEye, FaFolder, FaPaste, FaAlignLeft, FaEyeSlash, FaInfoCircle } from "react-icons/fa";
+import { FaCaretDown, FaCaretRight, FaUser, FaKey, FaEye, FaFolder, FaEyeSlash, FaInfoCircle } from "react-icons/fa";
 import { usePasswordManagerContext } from "../context";
 import { Entry } from "../interfaces";
 import { ButtonContentOverflow, ButtonItemIconContent } from "./shared";
