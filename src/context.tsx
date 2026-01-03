@@ -7,7 +7,7 @@ import { SteamClient } from "@decky/ui/dist/globals/SteamClient";
 
 import { useBackendState } from "./hooks";
 import { toaster } from "@decky/api";
-import { runKeepassShortcut } from "./utils";
+import { runKeepassShortcut } from "./shortcut-utils";
 
 declare var SteamClient: SteamClient;
 
