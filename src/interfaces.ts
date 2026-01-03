@@ -23,3 +23,4 @@ export type CurrentEntry = Entry & {
 
 export type KeepassFlatpakInstallState = 'initial' | 'installing' | 'done' | 'error';
 
+export type SettingsKey = 'keepassShortcutAppId';

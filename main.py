@@ -2,6 +2,8 @@ import os
 import subprocess
 
 import decky
+from settings import SettingsManager
+
 import asyncio
 
 from collections import Counter
@@ -241,6 +243,8 @@ class Plugin:
 
     keepass_flatpak: KeypassFlatpak = KeypassFlatpak()
 
+    settings: SettingsManager
+
     async def check_setup_state(self):
         try:
             return self.pm.check_setup_state()
@@ -294,14 +298,24 @@ class Plugin:
     async def get_state(self, key: str):
         return self.states.get(key, "null")
 
+    async def get_setting(self, key: str):
+        return self.settings.getSetting(key)
+
+    async def set_setting(self, key: str, value: str):
+        self.settings.setSetting(key, value)
+        self.settings.commit()
+
     async def _main(self): 
-        pass
+        decky.logger.info("Loaded DeckPass plugin")
+
+        self.settings = SettingsManager(name="settings", settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
+        self.settings.read()
 
     async def _unload(self):
-        pass
+        decky.logger.info("Unloaded DeckPass plugin")
 
     async def _uninstall(self):
-        pass
+        decky.logger.info("Uninstalled DeckPass plugin")
 
     async def _migration(self):
-        pass
+        decky.logger.info("Migrated DeckPass plugin")
