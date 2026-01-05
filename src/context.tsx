@@ -8,6 +8,8 @@ import { toaster } from "@decky/api";
 import { runKeepassShortcut } from "./shortcut-utils";
 import { pasteViaKeyboardInput } from "./copy-utils";
 
+let securityToken = "";
+
 export type UiState = 'loading' | 'error' | 'done';
 
 interface PasswordManagerContextValue {
@@ -70,13 +72,13 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
     }
 
     const reloadEntries = async () => {
-        let entries = await getEntriesBe();
+        let entries = await getEntriesBe(securityToken);
         await setCurrentEntries(mapBeEntriesToEntries(entries));
     }
 
     const openPasswordManager = async (password: string) => handleErrors(
         'Failed to open database', async () => {
-            await openPasswordManagerBe(password)
+            securityToken = await openPasswordManagerBe(password)
             await reloadEntries();
         });
 
@@ -86,7 +88,7 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
     };
 
     const getEntryDetails = async (entryPath: string): Promise<CurrentEntryDetails> => {
-        const detailsBe = await getEntryDetailsBe(entryPath);
+        const detailsBe = await getEntryDetailsBe(securityToken, entryPath);
 
         return mapBeEntryDetailsToCurrentEntryDetails(detailsBe);
     }

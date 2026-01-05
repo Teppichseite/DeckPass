@@ -1,4 +1,5 @@
 from logging import Logger
+import secrets
 from keypass_cli import KeypassCli
 import os
 
@@ -9,6 +10,8 @@ class PasswordManager:
     logger: Logger
 
     keepass_cli: KeypassCli
+
+    security_token = ""
 
     def __init__(self, logger: Logger):
         self.logger = logger
@@ -37,7 +40,13 @@ class PasswordManager:
     async def open(self, database_path: str, password: str):
         await self.keepass_cli.open(database_path, password)
 
-    async def get_entries(self):
+        self._generate_security_token()
+        return self.security_token
+
+    async def get_entries(self, security_token: str):
+        
+        self._validate_security_token(security_token)
+
         entries = await self.keepass_cli.run_command("ls -R -f", 0.3)
 
         entries = [self._remove_last_newline(e) for e in entries]
@@ -49,7 +58,10 @@ class PasswordManager:
 
         return entries
 
-    async def get_entry_details(self, entry_name: str):
+    async def get_entry_details(self, security_token: str, entry_name: str):
+
+        self._validate_security_token(security_token)
+
         entry_details = await self.keepass_cli.run_command(
             f"show \"{entry_name}\" -s -a UserName -a Password", 0.3
         )
@@ -62,3 +74,11 @@ class PasswordManager:
     def close(self):
         self.entries = []
         self.keepass_cli.close()
+
+    def _generate_security_token(self):
+        self.security_token = secrets.token_urlsafe(32)
+
+    def _validate_security_token(self, security_token: str):
+        is_valid = security_token == self.security_token
+        if not is_valid:
+            raise ValueError("Invalid security token!")

@@ -55,25 +55,25 @@ class Plugin:
             if database_path is None:
                 raise ValueError("No database path set!")
 
-            await asyncio.wait_for(self.pm.open(database_path, password), 10)
+            return await asyncio.wait_for(self.pm.open(database_path, password), 10)
         except:
             await self.close_password_manager()
             error_message = "Failed to open password manager!"
             decky.logger.error(error_message, exc_info=True)
             raise ValueError(error_message)
 
-    async def get_entries(self):
+    async def get_entries(self, security_token: str):
         try:
-            return await asyncio.wait_for(self.pm.get_entries(), 5)
+            return await asyncio.wait_for(self.pm.get_entries(security_token), 5)
         except:
             await self.close_password_manager()
             error_message = "Failed to get entries!"
             decky.logger.error(error_message, exc_info=True)
             raise ValueError(error_message)
 
-    async def get_entry_details(self, entry_name: str):
+    async def get_entry_details(self, security_token: str, entry_name: str):
         try:
-            return await asyncio.wait_for(self.pm.get_entry_details(entry_name), 5)
+            return await asyncio.wait_for(self.pm.get_entry_details(security_token, entry_name), 5)
         except:
             await self.close_password_manager()
             error_message = "Failed to get entry details!"

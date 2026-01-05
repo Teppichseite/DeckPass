@@ -1,10 +1,10 @@
 import { callable } from "@decky/api";
 import { CurrentEntryDetails, Entry, KeepassFlatpakInstallState, SettingsKey, SetupState } from "./interfaces";
 
-export const openPasswordManagerBe = callable<[string], void>("open_password_manager");
+export const openPasswordManagerBe = callable<[string], string>("open_password_manager");
 export const closePasswordManagerBe = callable<[], void>("close_password_manager");
-export const getEntriesBe = callable<[], string[]>("get_entries");
-export const getEntryDetailsBe = callable<[string], [string, string]>("get_entry_details");
+export const getEntriesBe = callable<[string], string[]>("get_entries");
+export const getEntryDetailsBe = callable<[string, string], [string, string]>("get_entry_details");
 export const getStateBe = callable<[string], string>("get_state");
 export const setStateBe = callable<[string, string], void>("set_state");
 export const checkSetupStateBe = callable<[], [boolean, string | null, string]>("check_setup_state");
