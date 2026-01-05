@@ -32,19 +32,26 @@ The flow of communication between DeckPass and KeePassKC works in the following 
 
 ### Database opening
 1. Python backend checks if the KeePassXC flatpack contains `keepassxc-cli` by calling the program once
-2. Python backend checks if a .kdbx file is stored under the DeckPass folder
-3. If conditionas (1) and (2) apply, the database can be opened via a password
-4. The password will be entered into an input element and then sent in plain text to the python backend
-5. The Python backend starts the `keepassxc-cli` via the KeePassXC Flatpack as subprocess with the open command and the found database file
-6. When the CLI asks for the database password, it will be sent to the CLI by writing to stdin
-7. After step (6) the database password will be not used at all anymore and also not stored anyhwere in the DeckPass frontend or Python backend
+2. If condition (1) applies, the database can be opened via a password
+3. The password will be entered into an input element and then sent in plain text to the python backend
+4. The Python backend starts `keepassxc-cli` via the KeePassXC Flatpack as subprocess with the open command and the database file
+5. When the CLI asks for the database password, it will be sent to the CLI by writing to stdin
+6. After step (6) the database password will be not used at all anymore and also not stored anyhwere in the DeckPass frontend or Python backend
+7. Python backend generates a short term token using `secrets.token_urlsafe(32)`, stores it in memory and returns it to the frontend
+8. Frontend stores the token in a variable of the JavaScript module of the plugin
 
 ### KeyPassXC CLI command exchange
-1. Once the database was opened with a correct password KeyPassXC is in charge of all credential related security regarding memory protection
-2. Python Backend keeps the CLI process open until either KeyPassXC decides to close it or it was explicitly closed by the user via the frontend
-3. Python Backend then sends CLI commands via stdin to the process and reads results from stdout
+1. Python Backend keeps the CLI process open until either KeyPassXC decides to close it or it was explicitly closed by the user via the frontend
+2. The the flow for command exchang works like this
+    1. Frontend resolves the short term token it got from database opening
+    2. Frontend makes a BE call including the token to request data
+        1. E.g. Receiving credentials in clear text for an entry
+    3. Backend compares the incoming token with the token in memory using `hmac.compare_digest`
+    4. Backend sends the respective command to the open Keypass CLI process
+    5. Backend waits for the response of the CLI and returns it to the frontend
+    6. Frontend displays the response
 
-### Credential details and pasting
+### Credential details and pasting commands in detail
 1. **Credential showcase in DeckPass**
     1. Python Backend requests clear text credentials from KeyPassXC CLI
     2. Frontend displays credentials
@@ -52,7 +59,7 @@ The flow of communication between DeckPass and KeePassKC works in the following 
 2. **Credential pasting to other applications**
     1. Python Backend requests clear text credentials from KeyPassXC CLI
     2. Frontend closes the Quick Access Menu
-    3. Frontend simulates Keyboard Input for the current application by calling `SteamClient.Input.ControllerKeyboardSendText(credential)`
+    3. Frontend simulates Keyboard Input for the current application by calling `SteamClient.Input.ControllerKeyboardSendText(credential)` for each character of the credential
 
 # Acknowledgments
 1. Release workflow taken from https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/.github/workflows/release.yml
