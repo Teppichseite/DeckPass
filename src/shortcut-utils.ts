@@ -2,6 +2,7 @@ import { SteamClient } from "@decky/ui/dist/globals/SteamClient";
 import capsuleImage from "../assets/shortcut/capsule.png";
 import capsuleWideImage from "../assets/shortcut/capsule-wide.png";
 import { getSettingBe, setSettingBe } from "./backend";
+import { sleep } from "@decky/ui";
 
 declare var SteamClient: SteamClient;
 
@@ -80,7 +81,7 @@ export const runKeepassShortcut = async (databasePath?: string | null) => {
         }
     }
 
-    setTimeout(() => {
-        SteamClient.Apps.RunGame(findGameIdFromAppId(appId), "", -1, 100);
-    }, launchTimeout);
+    await sleep(launchTimeout);
+
+    SteamClient.Apps.RunGame(findGameIdFromAppId(appId), "", -1, 100);
 }

@@ -13,7 +13,8 @@ const DetailDescription = ({ children }: DetailDescriptionProps) =>
   children ? <div style={{
     fontSize: '15px',
     overflowWrap: 'break-word',
-    paddingTop: '10px'
+    paddingTop: '10px',
+    whiteSpace: 'pre-wrap'
   }}>{children}</div>
     : undefined;
 

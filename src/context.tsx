@@ -2,14 +2,11 @@ import { createContext, useEffect, useState } from "react";
 import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe, mapBeEntryDetailsToCurrentEntryDetails, mapBeSetupStateToSetupState, checkSetupStateBe, installKeepassFlatpakBe, checkKeepassFlatpakInstallStateBe } from "./backend";
 import React from "react";
 import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry, KeepassFlatpakInstallState, SetupState } from "./interfaces";
-import { Router } from "@decky/ui";
-import { SteamClient } from "@decky/ui/dist/globals/SteamClient";
 
 import { useBackendState } from "./hooks";
 import { toaster } from "@decky/api";
 import { runKeepassShortcut } from "./shortcut-utils";
-
-declare var SteamClient: SteamClient;
+import { pasteViaKeyboardInput } from "./copy-utils";
 
 export type UiState = 'loading' | 'error' | 'done';
 
@@ -40,8 +37,6 @@ const PasswordManagerContext = createContext<PasswordManagerContextValue>({
     toggleCurrentEntry: async () => { },
     installKeepassFlatpak: async () => { }
 });
-
-PasswordManagerContext
 
 export interface PasswordMangerContextProviderProps {
     children: React.ReactNode;
@@ -103,10 +98,7 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
 
         const detailToPaste = details[detail];
 
-        Router.CloseSideMenus();
-        setTimeout(() => {
-            SteamClient.Input.ControllerKeyboardSendText(detailToPaste);
-        }, 500);
+        pasteViaKeyboardInput(detailToPaste);
     }
 
     const editPasswordManager = async () => {
