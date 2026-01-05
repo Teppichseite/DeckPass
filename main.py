@@ -80,8 +80,7 @@ class Plugin:
 
     async def close_password_manager(self):
         self.pm.close()
-        self.states.clear()
-
+        
     async def get_setting(self, key: str):
         return self.settings.getSetting(key)
 
