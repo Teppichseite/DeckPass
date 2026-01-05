@@ -1,5 +1,5 @@
 import { Router, sleep } from "@decky/ui";
-import { SteamClient } from "@decky/ui/dist/globals/SteamClient";
+import { SteamClient } from "@decky/ui/dist/globals/steam-client";
 
 declare var SteamClient: SteamClient;
 

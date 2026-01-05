@@ -1,4 +1,4 @@
-import { SteamClient } from "@decky/ui/dist/globals/SteamClient";
+import { SteamClient } from "@decky/ui/dist/globals/steam-client";
 import capsuleImage from "../assets/shortcut/capsule.png";
 import capsuleWideImage from "../assets/shortcut/capsule-wide.png";
 import { getSettingBe, setSettingBe } from "./backend";
@@ -33,7 +33,7 @@ const fetchImageToBase64 = async (url: string) => {
     const response = await fetch(url);
     const blob = await response.blob();
 
-    return new Promise((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
 
         const onReject = () => reject(new Error('Failed to read image'));
