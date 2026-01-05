@@ -40,18 +40,16 @@ class Plugin:
         try:
             await asyncio.wait_for(self.pm.open(password), 10)
         except:
+            await self.close_password_manager()
             error_message = "Failed to open password manager!"
             decky.logger.error(error_message, exc_info=True)
             raise ValueError(error_message)
-
-    async def close_password_manager(self):
-        self.pm.close()
-        self.states.clear()
 
     async def get_entries(self):
         try:
             return await asyncio.wait_for(self.pm.get_entries(), 5)
         except:
+            await self.close_password_manager()
             error_message = "Failed to get entries!"
             decky.logger.error(error_message, exc_info=True)
             raise ValueError(error_message)
@@ -60,9 +58,14 @@ class Plugin:
         try:
             return await asyncio.wait_for(self.pm.get_entry_details(entry_name), 5)
         except:
+            await self.close_password_manager()
             error_message = "Failed to get entry details!"
             decky.logger.error(error_message, exc_info=True)
             raise ValueError(error_message)
+
+    async def close_password_manager(self):
+        self.pm.close()
+        self.states.clear()
 
     async def set_state(self, key: str, value: str):
         self.states[key] = value
@@ -87,6 +90,7 @@ class Plugin:
 
     async def _unload(self):
         decky.logger.info("Unloaded DeckPass")
+        await self.close_password_manager()
 
     async def _uninstall(self):
         decky.logger.info("Uninstalled DeckPass")

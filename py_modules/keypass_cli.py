@@ -11,7 +11,7 @@ class KeypassCli:
     def __init__(self, logger: Logger):
         self.logger = logger
 
-    def find_english_utf8_locale(self):
+    def _get_english_utf8_locale(self):
         try:
             locales = subprocess.check_output(["locale", "-a"], text=True).splitlines()
         except Exception:
@@ -22,7 +22,7 @@ class KeypassCli:
                 return candidate
         return "C"
 
-    def get_keyypass_command(self, *args: str):
+    def _get_keyypass_command(self, *args: str):
 
         command = [
             "flatpak",
@@ -34,76 +34,19 @@ class KeypassCli:
 
         return command
 
-    def get_env_variables(self):
-        en_locale = self.find_english_utf8_locale()
+    def _get_env_variables(self):
+        en_locale = self._get_english_utf8_locale()
         return {
             "LANG": en_locale,
             "LC_ALL": en_locale,
             "LD_LIBRARY_PATH": ""
         }
 
-    def is_setup(self):
-        command = self.get_keyypass_command("-h")
-
-        check_result = subprocess.run(
-            command, 
-            env=self.get_env_variables(),
-            capture_output=True,
-            text=True
-        )
-
-        if check_result.returncode != 0:
-            self.logger.error(f"Failed to check KeypassXC setup: {check_result.stderr}")
-            return False
-
-        return True
-        
-    async def open(self, db_path: str, password: str):
-        command = self.get_keyypass_command("open", db_path)
-
-        self.process = await asyncio.create_subprocess_exec(
-            *command,
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.STDOUT,
-            env=self.get_env_variables()
-        )
-
-        password_prompt = await self.process.stdout.read(2000)
-        if not password_prompt.decode().startswith("Enter password to unlock"):
-            raise ValueError("CLI results out of order!")
-
-        await self.send(password)
-
-        try:
-            await self.read_until_input_expected()
-        except:
-            raise ValueError("Failed to open database with password")
-
-        self.is_open = True
-
-    def close(self):
-        self.process.terminate()
-        self.is_open = False
-
-    async def read_until_input_expected(self):
-        await self.process.stdout.readuntil("> ".encode())
-
-    async def run_command(self, cmd: str, timeout: float):
-        await self.send(cmd)
-        result = await self.read(timeout)
-
-        if len(result) < 1:
-            raise ValueError("CLI results out of order!")
-
-        await self.read_until_input_expected()
-        return result[1:]
-
-    async def send(self, value: str):
+    async def _send(self, value: str):
         self.process.stdin.write((value + "\n").encode())
         await self.process.stdin.drain()
 
-    async def read(self, timeout: float):
+    async def _read(self, timeout: float):
         output: list[str] = []
         while True:
             try:
@@ -114,3 +57,60 @@ class KeypassCli:
             except asyncio.TimeoutError:
                 break
         return output
+
+    
+    async def _read_until_input_expected(self):
+        await self.process.stdout.readuntil("> ".encode())
+
+
+    def is_setup(self):
+        command = self._get_keyypass_command("-h")
+
+        check_result = subprocess.run(
+            command, 
+            env=self._get_env_variables(),
+            capture_output=True,
+            text=True
+        )
+        if check_result.returncode != 0:
+            self.logger.error(f"Failed to check KeypassXC setup: {check_result.stderr}", exc_info=True)
+            return False
+
+        return True
+        
+    async def open(self, db_path: str, password: str):
+        if self.is_open:
+            await self.close()
+
+        command = self._get_keyypass_command("open", db_path)
+
+        self.process = await asyncio.create_subprocess_exec(
+            *command,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT,
+            close_fds=True,
+            env=self._get_env_variables()
+        )
+
+        await self.process.stdout.readuntil("Enter password to unlock".encode())
+
+        await self._send(password)
+
+        await self._read_until_input_expected()
+
+        self.is_open = True
+
+    async def run_command(self, cmd: str, timeout: float):
+        await self._send(cmd)
+        result = await self._read(timeout)
+
+        if len(result) < 1:
+            raise ValueError("CLI results out of order!")
+
+        await self._read_until_input_expected()
+        return result[1:]
+
+    def close(self):        
+        self.process.kill()
+        self.is_open = False
