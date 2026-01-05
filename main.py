@@ -1,247 +1,19 @@
 import os
-import subprocess
+import asyncio
+
+from keypass_flatpak import KeypassFlatpak
+from password_manager import PasswordManager
 
 import decky
 from settings import SettingsManager
 
-import asyncio
-
-from collections import Counter
-
-class KeypassFlatpak:
-    install_state: str = "initial"
-
-    async def install(self):
-
-        self.install_state = "installing"
-
-        commandAddRemote = [
-            "LD_LIBRARY_PATH= ",
-            "flatpak",
-            "remote-add",
-            "--user",
-            "--if-not-exists",
-            "flathub",
-            "https://dl.flathub.org/repo/flathub.flatpakrepo"
-        ]
-
-        commandInstallFlatpak = [
-            "LD_LIBRARY_PATH= ",
-            "flatpak",
-            "install",
-            "--user",  
-            "flathub",
-            "org.keepassxc.KeePassXC",
-            "-y"
-        ]
-
-        full_command = [
-            "bash", 
-            "-c", 
-            f"{' '.join(commandAddRemote)} && {' '.join(commandInstallFlatpak)}"
-        ]
-
-        decky.logger.info(f"Installing KeypassXC Flatpak: {' '.join(full_command)}")
-        process = await asyncio.create_subprocess_exec(
-            *full_command,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-
-        _, stderr = await process.communicate()
-
-        if process.returncode != 0:
-            self.install_state = "error"
-            error_msg = stderr.decode() if stderr else "Unknown error"
-            decky.logger.error(f"Failed to install KeypassXC Flatpak: {error_msg}", exc_info=True)
-            raise ValueError("Failed to install KeypassXC Flatpak")
-
-        decky.logger.info(f"KeypassXC Flatpak installed successfully")
-
-        self.install_state = "done"
-
-class KeypassCli:
-
-    is_open: bool = False
-
-    def find_english_utf8_locale(self):
-        try:
-            locales = subprocess.check_output(["locale", "-a"], text=True).splitlines()
-        except Exception:
-            return "C"
-
-        for candidate in ("C.UTF-8", "en_US.UTF-8", "en_US.utf8"):
-            if candidate in locales:
-                return candidate
-        return "C"
-
-    def get_keyypass_command(self, *args: str):
-
-        en_locale = self.find_english_utf8_locale()
-
-        command = [
-            f'LANG={en_locale}',
-            f'LC_ALL={en_locale}',
-            "LD_LIBRARY_PATH= ",
-            "flatpak",
-            "run",
-            "--command=keepassxc-cli",
-            "org.keepassxc.KeePassXC",
-            *args
-        ]
-
-        full_command = ["bash", "-c", " ".join(command)]
-
-        return full_command
-
-    def is_setup(self):
-        command = self.get_keyypass_command("-h")
-
-        check_result = subprocess.run(command)
-
-        return check_result.returncode == 0
-        
-    async def open(self, db_path: str, password: str):
-        command = self.get_keyypass_command("open", db_path)
-
-        self.process = await asyncio.create_subprocess_exec(
-            *command,
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.STDOUT,
-        )
-
-        password_prompt = await self.process.stdout.read(2000)
-        if not password_prompt.decode().startswith("Enter password to unlock"):
-            raise ValueError("CLI results out of order!")
-
-        await self.send(password)
-
-        try:
-            await self.read_until_input_expected()
-        except:
-            raise ValueError("Failed to open database with password")
-
-        self.is_open = True
-
-
-
-    def close(self):
-        self.process.terminate()
-        self.is_open = False
-
-    async def read_until_input_expected(self):
-        await self.process.stdout.readuntil("> ".encode())
-
-    async def run_command(self, cmd: str, timeout: float):
-        await self.send(cmd)
-        result = await self.read(timeout)
-
-        if len(result) < 1:
-            raise ValueError("CLI results out of order!")
-
-        await self.read_until_input_expected()
-        return result[1:]
-
-    async def send(self, value: str):
-        self.process.stdin.write((value + "\n").encode())
-        await self.process.stdin.drain()
-
-    async def read(self, timeout: float):
-        output: list[str] = []
-        while True:
-            try:
-                line = await asyncio.wait_for(self.process.stdout.readline(), timeout)
-                if not line:
-                    break
-                output.append(line.decode())
-            except asyncio.TimeoutError:
-                break
-        return output
-
-    def raise_out_of_order_error(self):
-        raise ValueError("CLI results out of order!")
-
-class PasswordManager:
-
-    keepass_cli: KeypassCli | None = None
-
-    def is_open(self):
-        return not (self.keepass_cli is not None or self.keepass_cli.is_open)
-    
-    def get_database_folder(self):
-        return os.path.join(decky.DECKY_USER_HOME, "DeckPass")
-    
-    def check_setup_state(self):
-        is_keepass_setup = KeypassCli().is_setup()
-
-        database_folder = self.get_database_folder()
-
-        database_path = self.check_database_path()
-
-        return is_keepass_setup, database_folder, database_path
-
-    def check_database_path(self):
-        folder_path = self.get_database_folder()
-        if not os.path.isdir(folder_path):
-            os.makedirs(folder_path)
-            return None
-
-        files = os.listdir(folder_path)
-        files.sort()
-        database_files = [f for f in files if f.endswith(".kdbx")]
-
-        if len(database_files) <= 0:
-           return None
-
-        return os.path.join(folder_path, database_files[0])
-
-    def remove_last_newline(self, s: str) -> str:
-        return s[:-1] if s.endswith("\n") else s
-
-    async def open(self, password: str):
-        self.keepass_cli = KeypassCli()
-
-        db_path = self.check_database_path()
-        if db_path is None:
-            raise ValueError("Could not find Database")
-        
-        await self.keepass_cli.open(db_path, password)
-
-    def close(self):
-        self.entries = []
-        self.keepass_cli.close()
-        self.keepass_cli = None
-
-    async def get_entries(self):
-        entries = await self.keepass_cli.run_command("ls -R -f", 0.3)
-
-        entries = [self.remove_last_newline(e) for e in entries]
-        entries = [e for e in entries if not e.endswith("/")]
-        entries = [e for e in entries if not e.endswith("[empty]")]
-        entryCounts = Counter(entries)
-        entries = [entry for entry in entries if entryCounts[entry] == 1]
-        entries.sort()
-
-        return entries
-
-    async def get_entry_details(self, entry_name: str):
-        entry_details = await self.keepass_cli.run_command(
-            f"show \"{entry_name}\" -s -a UserName -a Password", 0.3
-        )
-
-        username = self.remove_last_newline(entry_details[0])
-        password = self.remove_last_newline(entry_details[1])
-
-        return [username, password]
-
 class Plugin:
 
-    pm = PasswordManager()
+    pm = PasswordManager(decky.logger, os.path.join(decky.DECKY_USER_HOME, "DeckPass"))
 
     states: dict[str, str] = dict()
 
-    keepass_flatpak: KeypassFlatpak = KeypassFlatpak()
+    keepass_flatpak: KeypassFlatpak = KeypassFlatpak(decky.logger)
 
     settings: SettingsManager
 
@@ -306,16 +78,19 @@ class Plugin:
         self.settings.commit()
 
     async def _main(self): 
-        decky.logger.info("Loaded DeckPass plugin")
+        decky.logger.info("Loading DeckPass...")
 
         self.settings = SettingsManager(name="settings", settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
         self.settings.read()
 
+        decky.logger.info("Done loading DeckPass")
+
+
     async def _unload(self):
-        decky.logger.info("Unloaded DeckPass plugin")
+        decky.logger.info("Unloaded DeckPass")
 
     async def _uninstall(self):
-        decky.logger.info("Uninstalled DeckPass plugin")
+        decky.logger.info("Uninstalled DeckPass")
 
     async def _migration(self):
-        decky.logger.info("Migrated DeckPass plugin")
+        decky.logger.info("Migrated DeckPass")
