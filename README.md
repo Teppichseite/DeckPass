@@ -23,9 +23,16 @@ Internally it uses KeePassXC.
 2. Due to a limitation of KeePass, entries which have the same name within the same folder are not being displayed
 
 ## Security considerations
-1. DeckPass serves only as a frontend for KeePassXC and itself does not store any credentials persistently
-2. Once a database was opened, it stays open as long as KeePassXC decides it stays open
-3. You can always close the Database manually as soon as you want
+1. DeckPass is creating an interactive KeyPass CLI process internally and therefore does not manage or store any credentials itself persistently
+2. The KeyPass CLI stays active as long as either the CLI itself closes it, or the users closes it via UI
+3. DeckPass uses the following methods to reduce attack surface
+    1. When creating the KeyPass CLI process, direct parent to child communication via pipes is used to communicate between Python backend (parent) and KeyPass CLI process (child)
+        1. This reduces the possibilities for other processes to interact with the child process
+    2. After the opening a database, the frontend recieves a security token which is required for KeePass command execution for the backend
+        1. The security token is stored in a variable of JavaScript module of the plugin
+        2. This reduces the possibility that a process achieves to perform calls directly to the Python backend
+4. If there is a malicious program or Decky plugin installed it might be able to interact with the running KeyPass CLI process under cerain conditions
+5. The detailed communication flow can be seen below 
 
 ## Communication between DeckPass and KeePassXC
 The flow of communication between DeckPass and KeePassKC works in the following way:
