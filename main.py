@@ -85,7 +85,6 @@ class Plugin:
 
         decky.logger.info("Done loading DeckPass")
 
-
     async def _unload(self):
         decky.logger.info("Unloaded DeckPass")
 

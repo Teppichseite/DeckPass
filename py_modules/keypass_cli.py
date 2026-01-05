@@ -47,10 +47,16 @@ class KeypassCli:
 
         check_result = subprocess.run(
             command, 
-            env=self.get_env_variables()
+            env=self.get_env_variables(),
+            capture_output=True,
+            text=True
         )
 
-        return check_result.returncode == 0
+        if check_result.returncode != 0:
+            self.logger.error(f"Failed to check KeypassXC setup: {check_result.stderr}")
+            return False
+
+        return True
         
     async def open(self, db_path: str, password: str):
         command = self.get_keyypass_command("open", db_path)

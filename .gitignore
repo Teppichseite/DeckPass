@@ -55,3 +55,6 @@ out/*
 cli/
 cli/*
 cli/decky
+
+# Local test script
+test_script.py
