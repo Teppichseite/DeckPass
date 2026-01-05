@@ -10,26 +10,20 @@ class PasswordManager:
 
     keepass_cli: KeypassCli
 
-    database_folder: str
-
-    def __init__(self, logger: Logger, database_folder: str):
+    def __init__(self, logger: Logger):
         self.logger = logger
-        self.database_folder = database_folder
         self.keepass_cli = KeypassCli(self.logger)
 
-    def _check_database_path(self):
-        if not os.path.isdir(self.database_folder):
-            os.makedirs(self.database_folder)
+    def _check_database_path(self, database_path: str | None):
+        if database_path is None:
             return None
 
-        files = os.listdir(self.database_folder)
-        files.sort()
-        database_files = [f for f in files if f.endswith(".kdbx")]
+        path = os.path.abspath(database_path)
 
-        if len(database_files) <= 0:
-           return None
+        if not os.path.exists(path):
+            return None
 
-        return os.path.join(self.database_folder, database_files[0])
+        return database_path
 
     def _remove_last_newline(self, s: str) -> str:
         return s[:-1] if s.endswith("\n") else s
@@ -37,19 +31,19 @@ class PasswordManager:
     def is_open(self):
         return self.keepass_cli.is_open
     
-    def check_setup_state(self):
+    def check_setup_state(self, database_path: str | None):
         is_keepass_setup = self.keepass_cli.is_setup()
 
-        database_path = self._check_database_path()
+        database_path = self._check_database_path(database_path)
 
-        return is_keepass_setup, self.database_folder, database_path
+        return is_keepass_setup, "empty", database_path
 
-    async def open(self, password: str):
-        db_path = self._check_database_path()
-        if db_path is None:
+    async def open(self, database_path: str | None, password: str):
+        database_path = self._check_database_path(database_path)
+        if database_path is None:
             raise ValueError("Could not find Database")
         
-        await self.keepass_cli.open(db_path, password)
+        await self.keepass_cli.open(database_path, password)
 
     async def get_entries(self):
         entries = await self.keepass_cli.run_command("ls -R -f", 0.3)

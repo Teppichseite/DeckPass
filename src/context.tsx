@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe, mapBeEntryDetailsToCurrentEntryDetails, mapBeSetupStateToSetupState, checkSetupStateBe, installKeepassFlatpakBe, checkKeepassFlatpakInstallStateBe } from "./backend";
+import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe, mapBeEntryDetailsToCurrentEntryDetails, mapBeSetupStateToSetupState, checkSetupStateBe, installKeepassFlatpakBe, checkKeepassFlatpakInstallStateBe, setSettingBe } from "./backend";
 import React from "react";
 import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry, KeepassFlatpakInstallState, SetupState } from "./interfaces";
 
@@ -16,6 +16,7 @@ interface PasswordManagerContextValue {
     currentEntryDetails: CurrentEntryDetails | null;
     setupState: SetupState | null;
     keepassFlatpakInstallState: KeepassFlatpakInstallState;
+    selectDatabase: (databasePath: string) => Promise<void>;
     openPasswordManager: (password: string) => Promise<void>;
     editPasswordManager: () => Promise<void>;
     closePasswordManager: () => Promise<void>;
@@ -30,6 +31,7 @@ const PasswordManagerContext = createContext<PasswordManagerContextValue>({
     currentEntryDetails: null,
     setupState: null,
     keepassFlatpakInstallState: 'initial',
+    selectDatabase: async () => { },
     openPasswordManager: async () => { },
     editPasswordManager: async () => { },
     closePasswordManager: async () => { },
@@ -139,10 +141,14 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         });
     }, [currentEntry, currentEntry?.displayMode]);
 
-    useEffect(() => {
-        handleErrors('Could not evaluate setup state', async () => {
+    const reloadSetupState = async () => {
+        await handleErrors('Could not evaluate setup state', async () => {
             setSetupState(mapBeSetupStateToSetupState(await checkSetupStateBe()))
         });
+    }
+
+    useEffect(() => {
+        reloadSetupState();
     }, [keepassFlatpakInstallState]);
 
     const installKeepassFlatpak = async () => {
@@ -175,12 +181,23 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         });
     }, []);
 
+    const selectDatabase = async (databasePath: string) => {
+        let resultingPath: string | null = databasePath;
+        if(!databasePath.endsWith('.kdbx')) {
+            resultingPath = null;
+        }
+
+        await setSettingBe('databasePath', databasePath);
+        await reloadSetupState();
+    }
+
     const value: PasswordManagerContextValue = {
         currentEntries,
         currentEntry,
         currentEntryDetails,
         setupState,
         keepassFlatpakInstallState,
+        selectDatabase,
         openPasswordManager,
         editPasswordManager,
         closePasswordManager,

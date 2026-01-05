@@ -96,7 +96,7 @@ const DatabaseCreateSteps = () => {
                 Add your entries. You can edit the Database later as often as you want
             </li>
             <li>
-                Save the Database under the <strong>{setupState?.databaseFolderPath}</strong> folder
+                Select the Database .kdbx file by clicking on <strong>"Select Database"</strong>
                 <ul style={listStyle}>
                     <li >
                         <strong>{isDoneText(!!setupState?.databasePath)}</strong>

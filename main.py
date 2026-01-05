@@ -9,7 +9,7 @@ from settings import SettingsManager
 
 class Plugin:
 
-    pm = PasswordManager(decky.logger, os.path.join(decky.DECKY_USER_HOME, "DeckPass"))
+    pm = PasswordManager(decky.logger)
 
     states: dict[str, str] = dict()
 
@@ -19,7 +19,7 @@ class Plugin:
 
     async def check_setup_state(self):
         try:
-            return self.pm.check_setup_state()
+            return self.pm.check_setup_state(self.settings.getSetting("databasePath"))
         except:
             error_message = "Failed to check setup state!"
             decky.logger.error(error_message, exc_info=True)
@@ -38,7 +38,7 @@ class Plugin:
 
     async def open_password_manager(self, password: str):
         try:
-            await asyncio.wait_for(self.pm.open(password), 10)
+            await asyncio.wait_for(self.pm.open(self.settings.getSetting("databasePath"), password), 10)
         except:
             await self.close_password_manager()
             error_message = "Failed to open password manager!"
