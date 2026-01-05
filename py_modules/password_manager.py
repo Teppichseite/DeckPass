@@ -2,6 +2,7 @@ from logging import Logger
 import secrets
 from keypass_cli import KeypassCli
 import os
+import hmac
 
 from collections import Counter
 
@@ -74,11 +75,12 @@ class PasswordManager:
     def close(self):
         self.entries = []
         self.keepass_cli.close()
+        self.security_token = ""
 
     def _generate_security_token(self):
         self.security_token = secrets.token_urlsafe(32)
 
     def _validate_security_token(self, security_token: str):
-        is_valid = security_token == self.security_token
+        is_valid = hmac.compare_digest(self.security_token, security_token)
         if not is_valid:
             raise ValueError("Invalid security token!")

@@ -85,6 +85,7 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
     const closePasswordManager = async () => {
         await closePasswordManagerBe()
         await setCurrentEntries(null);
+        securityToken = "";
     };
 
     const getEntryDetails = async (entryPath: string): Promise<CurrentEntryDetails> => {
