@@ -11,8 +11,6 @@ class Plugin:
 
     pm = PasswordManager(decky.logger)
 
-    states: dict[str, str] = dict()
-
     keepass_flatpak: KeypassFlatpak = KeypassFlatpak(decky.logger)
 
     settings: SettingsManager
@@ -83,12 +81,6 @@ class Plugin:
     async def close_password_manager(self):
         self.pm.close()
         self.states.clear()
-
-    async def set_state(self, key: str, value: str):
-        self.states[key] = value
-
-    async def get_state(self, key: str):
-        return self.states.get(key, "null")
 
     async def get_setting(self, key: str):
         return self.settings.getSetting(key)

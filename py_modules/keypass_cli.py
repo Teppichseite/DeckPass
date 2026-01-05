@@ -80,7 +80,7 @@ class KeypassCli:
         
     async def open(self, db_path: str, password: str):
         if self.is_open:
-            await self.close()
+            self.close()
 
         command = self._get_keyypass_command("open", db_path)
 

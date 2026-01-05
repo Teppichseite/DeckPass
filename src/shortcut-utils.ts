@@ -1,8 +1,10 @@
 import { SteamClient } from "@decky/ui/dist/globals/steam-client";
 import capsuleImage from "../assets/shortcut/capsule.png";
 import capsuleWideImage from "../assets/shortcut/capsule-wide.png";
+import logoImage from "../assets/shortcut/logo.png";
 import { getSettingBe, setSettingBe } from "./backend";
 import { sleep } from "@decky/ui";
+import { ELibraryAssetType } from "@decky/ui/dist/globals/steam-client/App";
 
 declare var SteamClient: SteamClient;
 
@@ -70,9 +72,11 @@ export const runKeepassShortcut = async (databasePath?: string | null) => {
         await setSettingBe("keepassShortcutAppId", appId);
 
         const capsuleImageBase64 = await fetchImageToBase64(capsuleImage);
-        await SteamClient.Apps.SetCustomArtworkForApp(appId, capsuleImageBase64, "png", 0);
+        await SteamClient.Apps.SetCustomArtworkForApp(appId, capsuleImageBase64, "png", ELibraryAssetType.Capsule);
         const capsuleWideImageBase64 = await fetchImageToBase64(capsuleWideImage);
-        await SteamClient.Apps.SetCustomArtworkForApp(appId, capsuleWideImageBase64, "png", 3);
+        await SteamClient.Apps.SetCustomArtworkForApp(appId, capsuleWideImageBase64, "png", ELibraryAssetType.Header);
+        const logoImageBase64 = await fetchImageToBase64(logoImage);
+        await SteamClient.Apps.SetCustomArtworkForApp(appId, logoImageBase64, "png", ELibraryAssetType.Logo);
     } else {
         if (appDetailsStore.GetAppDetails(appId)?.strLaunchOptions !== shortcutLaunchOptions) {
             await SteamClient.Apps.SetShortcutLaunchOptions(appId, shortcutLaunchOptions);

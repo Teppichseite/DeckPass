@@ -3,7 +3,7 @@ import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDe
 import React from "react";
 import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry, KeepassFlatpakInstallState, SetupState } from "./interfaces";
 
-import { useBackendState } from "./hooks";
+import { useJsContextState } from "./hooks";
 import { toaster } from "@decky/api";
 import { runKeepassShortcut } from "./shortcut-utils";
 import { pasteViaKeyboardInput } from "./copy-utils";
@@ -50,10 +50,10 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
 
     const [currentEntryDetails, setCurrentEntryDetails] = useState<CurrentEntryDetails | null>(null);
 
-    const [currentEntry, setCurrentEntry] = useBackendState<CurrentEntry | null>('currentEntry', null);
-    const [currentEntries, setCurrentEntries] = useBackendState<Entry[] | null>('currentEntries', null);
+    const [currentEntry, setCurrentEntry] = useJsContextState<CurrentEntry | null>('currentEntry', null);
+    const [currentEntries, setCurrentEntries] = useJsContextState<Entry[] | null>('currentEntries', null);
 
-    const [setupState, setSetupState] = useBackendState<SetupState | null>('setupState', null);
+    const [setupState, setSetupState] = useState<SetupState | null>(null);
 
     const [keepassFlatpakInstallState, setKeepassFlatpakInstallState] = useState<KeepassFlatpakInstallState>('initial');
 
