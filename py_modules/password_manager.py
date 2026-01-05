@@ -31,18 +31,10 @@ class PasswordManager:
     def is_open(self):
         return self.keepass_cli.is_open
     
-    def check_setup_state(self, database_path: str | None):
-        is_keepass_setup = self.keepass_cli.is_setup()
+    def are_dependencies_setup(self):
+        return self.keepass_cli.is_setup()
 
-        database_path = self._check_database_path(database_path)
-
-        return is_keepass_setup, "empty", database_path
-
-    async def open(self, database_path: str | None, password: str):
-        database_path = self._check_database_path(database_path)
-        if database_path is None:
-            raise ValueError("Could not find Database")
-        
+    async def open(self, database_path: str, password: str):
         await self.keepass_cli.open(database_path, password)
 
     async def get_entries(self):

@@ -17,9 +17,22 @@ class Plugin:
 
     settings: SettingsManager
 
+    def _get_database_path(self):
+        path_str = self.settings.getSetting("databasePath")
+        if path_str is None:
+            return None
+
+        path = os.path.abspath(path_str)
+        if not os.path.exists(path):
+            return None
+
+        return path_str
+
     async def check_setup_state(self):
         try:
-            return self.pm.check_setup_state(self.settings.getSetting("databasePath"))
+            is_keepass_setup = self.pm.are_dependencies_setup()
+            database_path = self._get_database_path()
+            return is_keepass_setup, database_path, decky.DECKY_USER_HOME
         except:
             error_message = "Failed to check setup state!"
             decky.logger.error(error_message, exc_info=True)
@@ -38,7 +51,11 @@ class Plugin:
 
     async def open_password_manager(self, password: str):
         try:
-            await asyncio.wait_for(self.pm.open(self.settings.getSetting("databasePath"), password), 10)
+            database_path = self._get_database_path()
+            if database_path is None:
+                raise ValueError("No database path set!")
+
+            await asyncio.wait_for(self.pm.open(database_path, password), 10)
         except:
             await self.close_password_manager()
             error_message = "Failed to open password manager!"

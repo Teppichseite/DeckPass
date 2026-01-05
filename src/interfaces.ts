@@ -1,7 +1,7 @@
 export type SetupState = {
     areDependenciesSetup: boolean;
-    databaseFolderPath: string;
     databasePath: string | null;
+    userHomePath: string;
 }
 
 export type Entry = {

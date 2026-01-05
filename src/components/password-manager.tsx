@@ -14,16 +14,18 @@ export const PasswordManagerClosed = () => {
   const isSetup = setupState?.areDependenciesSetup && !!setupState?.databasePath;
 
   const onSelectDatabase = async () => {
-    await openFilePicker(FileSelectionType.FILE, '/home/deck', true, true, () => true, ['kdbx']).then(async res => {
-      await selectDatabase(res.path);
-    });
+    await openFilePicker(
+      FileSelectionType.FILE,
+      setupState?.userHomePath || '/home/deck', true, true, () => true, ['kdbx']).then(async res => {
+        await selectDatabase(res.path);
+      });
   }
 
   const passwordModal = <InputModal
     onConfirm={(password) => openPasswordManager(password)}
     title="Enter Database Password"
     isPassword={true}
-    />;
+  />;
 
   return (
     <PanelSection>

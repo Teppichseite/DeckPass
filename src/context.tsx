@@ -187,7 +187,7 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
             resultingPath = null;
         }
 
-        await setSettingBe('databasePath', databasePath);
+        await setSettingBe('databasePath', resultingPath);
         await reloadSetupState();
     }
 

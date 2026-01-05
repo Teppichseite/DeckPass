@@ -7,7 +7,7 @@ export const getEntriesBe = callable<[], string[]>("get_entries");
 export const getEntryDetailsBe = callable<[string], [string, string]>("get_entry_details");
 export const getStateBe = callable<[string], string>("get_state");
 export const setStateBe = callable<[string, string], void>("set_state");
-export const checkSetupStateBe = callable<[], [boolean, string, string]>("check_setup_state");
+export const checkSetupStateBe = callable<[], [boolean, string | null, string]>("check_setup_state");
 
 export const checkKeepassFlatpakInstallStateBe = callable<[], KeepassFlatpakInstallState>("check_keepass_flatpak_install_state");
 export const installKeepassFlatpakBe = callable<[], void>("install_keepass_flatpak");
@@ -56,16 +56,16 @@ export const mapBeEntryDetailsToCurrentEntryDetails = (beEntryDetails: [string, 
     };
 };
 
-export const mapBeSetupStateToSetupState = (beSetupState: [boolean, string, string]): SetupState => {
+export const mapBeSetupStateToSetupState = (beSetupState: [boolean, string | null, string]): SetupState => {
     const [
         areDependenciesSetup,
-        databaseFolderPath,
-        databasePath
+        databasePath,
+        userHomePath
     ] = beSetupState;
 
     return {
         areDependenciesSetup,
-        databaseFolderPath,
-        databasePath
+        databasePath,
+        userHomePath
     };
 };
