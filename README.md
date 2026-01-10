@@ -68,6 +68,10 @@ The flow of communication between DeckPass and KeePassKC works in the following 
     2. Frontend closes the Quick Access Menu
     3. Frontend simulates Keyboard Input for the current application by calling `SteamClient.Input.ControllerKeyboardSendText(credential)` for each character of the credential
 
+## Building and Deployment
+
+To properly build and deploy the plugin manually please refer to this guide: https://magicpods.app/blog/post-11/
+
 # Acknowledgments
 1. Release workflow taken from https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/.github/workflows/release.yml
 2. Steam Shortcut assets under `./assets/shortcut` are taken from https://www.steamgriddb.com/
