@@ -23,15 +23,14 @@ Internally it uses KeePassXC.
 2. Due to a limitation of KeePass, entries which have the same name within the same folder are not being displayed
 
 ## Security considerations
-1. DeckPass is creating an interactive KeyPass CLI process internally and therefore does not manage or store any credentials itself persistently
-2. The KeyPass CLI stays active as long as either the CLI itself closes it, or the users closes it via UI
+1. DeckPass is creating an interactive KeePass CLI process internally and therefore does not manage or store any credentials itself persistently
+2. The KeePass CLI stays active as long as either the CLI itself closes it, or the users closes it via UI
 3. DeckPass uses the following methods to reduce attack surface
-    1. When creating the KeyPass CLI process, direct parent to child communication via pipes is used to communicate between Python backend (parent) and KeyPass CLI process (child)
-        1. This reduces the possibilities for other processes to interact with the child process
+    1. When creating the KeePass CLI process, direct parent to child process communication via pipes is used to communicate between Python backend (parent) and KeePass CLI process (child)
     2. After the opening a database, the frontend recieves a security token which is required for KeePass command execution for the backend
-        1. The security token is stored in a variable of JavaScript module of the plugin
+        1. The security token is stored in a scoped variable of the JavaScript module of the plugin
         2. This reduces the possibility that a process achieves to perform calls directly to the Python backend
-4. If there is a malicious program or Decky plugin installed it might be able to interact with the running KeyPass CLI process under cerain conditions
+4. If there is a malicious program or Decky plugin installed it might be able to interact with the running KeePass CLI process under cerain conditions
 5. The detailed communication flow can be seen below 
 
 ## Communication between DeckPass and KeePassXC
@@ -47,24 +46,24 @@ The flow of communication between DeckPass and KeePassKC works in the following 
 7. Python backend generates a short term token using `secrets.token_urlsafe(32)`, stores it in memory and returns it to the frontend
 8. Frontend stores the token in a variable of the JavaScript module of the plugin
 
-### KeyPassXC CLI command exchange
-1. Python Backend keeps the CLI process open until either KeyPassXC decides to close it or it was explicitly closed by the user via the frontend
+### KeePassXC CLI command exchange
+1. Python Backend keeps the CLI process open until either KeePassXC decides to close it or it was explicitly closed by the user via the frontend
 2. The the flow for command exchang works like this
     1. Frontend resolves the short term token it got from database opening
     2. Frontend makes a BE call including the token to request data
         1. E.g. Receiving credentials in clear text for an entry
     3. Backend compares the incoming token with the token in memory using `hmac.compare_digest`
-    4. Backend sends the respective command to the open Keypass CLI process
+    4. Backend sends the respective command to the open KeePass CLI process
     5. Backend waits for the response of the CLI and returns it to the frontend
     6. Frontend displays the response
 
 ### Credential details and pasting commands in detail
 1. **Credential showcase in DeckPass**
-    1. Python Backend requests clear text credentials from KeyPassXC CLI
+    1. Python Backend requests clear text credentials from KeePassXC CLI
     2. Frontend displays credentials
     3. Credentials are only stored in memory as long as the credentials are displayed
 2. **Credential pasting to other applications**
-    1. Python Backend requests clear text credentials from KeyPassXC CLI
+    1. Python Backend requests clear text credentials from KeePassXC CLI
     2. Frontend closes the Quick Access Menu
     3. Frontend simulates Keyboard Input for the current application by calling `SteamClient.Input.ControllerKeyboardSendText(credential)` for each character of the credential
 
