@@ -53,6 +53,7 @@ class Plugin:
             if database_path is None:
                 raise ValueError("No database path set!")
 
+            decky.logger.info(f"Opening database {database_path}")
             return await asyncio.wait_for(self.pm.open(database_path, password), 10)
         except:
             await self.close_password_manager()
@@ -79,6 +80,7 @@ class Plugin:
             raise ValueError(error_message)
 
     async def close_password_manager(self):
+        decky.logger.info("Closing database")
         self.pm.close()
         
     async def get_setting(self, key: str):
