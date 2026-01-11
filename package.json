@@ -1,7 +1,7 @@
 {
-  "name": "decky-plugin-template",
+  "name": "DeckPass",
   "version": "1.0.0",
-  "description": "A template to quickly create decky plugins from scratch, based on TypeScript and webpack",
+  "description": "DeckPass is a Decky Plugin to access passwords directly in SteamOS gaming mode. Internally it uses KeePassXC.",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
@@ -14,10 +14,13 @@
   },
   "keywords": [
     "decky",
-    "plugin",
-    "plugin-template",
     "steam-deck",
-    "deck"
+    "deck",
+    "password",
+    "password-manager",
+    "keepass", 
+    "utility", 
+    "clipboard"
   ],
   "author": "Teppichseite",
   "license": "BSD-3-Clause",
