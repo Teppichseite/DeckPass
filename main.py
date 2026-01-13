@@ -43,7 +43,7 @@ class Plugin:
         try:
             await self.keepass_flatpak.install();
         except:
-            error_message = "Failed to install KeypassXC Flatpak!"
+            error_message = "Failed to install KeypassXC Flatspak!"
             decky.logger.error(error_message, exc_info=True)
             raise ValueError(error_message)
 
@@ -79,6 +79,62 @@ class Plugin:
             decky.logger.error(error_message, exc_info=True)
             raise ValueError(error_message)
 
+    async def generate_random_password(self, security_token: str):
+        decky.logger.info(f"Generating random password")
+        try:
+            return await asyncio.wait_for(self.pm.generate_random_password(security_token), 5)
+        except:
+            await self.close_password_manager()
+            error_message = "Failed to generate random password!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
+
+    async def create_entry(self, security_token: str, entry_name: str):
+        try:
+            decky.logger.info(f"Creating entry {entry_name}")
+            await asyncio.wait_for(self.pm.create_entry(security_token, entry_name), 5)#
+            decky.logger.info(f"Created entry {entry_name}")
+        except:
+            await self.close_password_manager()
+            error_message = "Failed to create entry!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
+
+    async def remove_entry(self, security_token: str, entry_name: str):
+        try:
+            await asyncio.wait_for(self.pm.remove_entry(security_token, entry_name), 5)
+        except:
+            await self.close_password_manager()
+            error_message = "Failed to remove entry!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
+
+    async def set_entry_username(self, security_token: str, entry_name: str, username: str):
+        try:
+            await asyncio.wait_for(self.pm.set_entry_username(security_token, entry_name, username), 5)
+        except:
+            await self.close_password_manager()
+            error_message = "Failed to set entry username!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
+
+    async def set_entry_password(self, security_token: str, entry_name: str, password: str):
+        try:
+            await asyncio.wait_for(self.pm.set_entry_password(security_token, entry_name, password), 5)
+        except:
+            await self.close_password_manager()
+            error_message = "Failed to set entry password!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
+
+    async def create_database(self, database_path: str, password: str):
+        try:
+            await asyncio.wait_for(self.pm.create_database(database_path, password), 5)
+        except:
+            error_message = "Failed to create database!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
+
     async def close_password_manager(self):
         decky.logger.info("Closing database")
         self.pm.close()
@@ -107,3 +163,5 @@ class Plugin:
 
     async def _migration(self):
         decky.logger.info("Migrated DeckPass")
+
+        

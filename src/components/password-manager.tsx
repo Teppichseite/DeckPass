@@ -1,15 +1,17 @@
 import { PanelSection, PanelSectionRow, ButtonItem, showModal, findSP } from "@decky/ui";
-import { FaDatabase, FaEdit, FaKey, FaLock, FaLockOpen, FaPlus } from "react-icons/fa";
+import { FaDatabase, FaDesktop, FaFolder, FaKey, FaLock, FaLockOpen, FaPlus } from "react-icons/fa";
 import { usePasswordManagerContext } from "../context";
-import { InputModal } from "./modal";
 import { EntryComponent } from "./entry";
 import { ButtonItemIconContent } from "./shared";
 import { SetupGuide } from "./setup-guide";
 import { FileSelectionType, openFilePicker } from "@decky/api";
+import { EntryModal } from "./modals/entry-modal";
+import { CreateDatabaseModal } from "./modals/create-database-modal";
+import { OpenDatabaseModal } from "./modals/open-database-modal";
 
 export const PasswordManagerClosed = () => {
 
-  const { openPasswordManager, setupState, editPasswordManager, selectDatabase } = usePasswordManagerContext();
+  const { openPasswordManager, setupState, editPasswordManager, selectDatabase, createDatabase } = usePasswordManagerContext();
 
   const isSetup = setupState?.areDependenciesSetup && !!setupState?.databasePath;
 
@@ -21,11 +23,11 @@ export const PasswordManagerClosed = () => {
       });
   }
 
-  const passwordModal = <InputModal
-    onConfirm={(password) => openPasswordManager(password)}
-    title="Enter Database Password"
-    isPassword={true}
+  const openDatabaseModal = <OpenDatabaseModal
+    onOpen={(password) => openPasswordManager(password)}
   />;
+
+  const createDatabaseModal = <CreateDatabaseModal onCreateDatabase={createDatabase} />;
 
   return (
     <PanelSection>
@@ -56,7 +58,7 @@ export const PasswordManagerClosed = () => {
         <ButtonItem
           layout="below"
           disabled={!isSetup}
-          onClick={() => showModal(passwordModal, findSP())}
+          onClick={() => showModal(openDatabaseModal, findSP())}
         >
           <ButtonItemIconContent icon={<FaLockOpen />}>Open Database</ButtonItemIconContent>
         </ButtonItem>
@@ -64,9 +66,20 @@ export const PasswordManagerClosed = () => {
         <ButtonItem
           layout="below"
           disabled={!setupState?.areDependenciesSetup}
-          onClick={onSelectDatabase}
+          onClick={() => onSelectDatabase()}
         >
-          <ButtonItemIconContent icon={<FaDatabase />}>Select Database</ButtonItemIconContent>
+          <ButtonItemIconContent icon={<FaFolder />}>Select Database</ButtonItemIconContent>
+        </ButtonItem>
+
+        <ButtonItem
+          layout="below"
+          disabled={!setupState?.areDependenciesSetup}
+          onClick={() => showModal(createDatabaseModal, findSP())}
+        >
+          <ButtonItemIconContent
+            icon={<FaDatabase />}>
+            Create Database
+          </ButtonItemIconContent>
         </ButtonItem>
 
         <ButtonItem
@@ -74,10 +87,7 @@ export const PasswordManagerClosed = () => {
           disabled={!setupState?.areDependenciesSetup}
           onClick={() => editPasswordManager()}
         >
-          <ButtonItemIconContent
-            icon={!!setupState?.databasePath ? <FaEdit /> : <FaPlus />}>
-            {!!setupState?.databasePath ? 'Edit Database' : 'Create Database'}
-          </ButtonItemIconContent>
+          <ButtonItemIconContent icon={<FaDesktop />}>Open KeePassXC</ButtonItemIconContent>
         </ButtonItem>
 
         <SetupGuide />
@@ -89,11 +99,18 @@ export const PasswordManagerClosed = () => {
 
 export const PasswordManagerOpened = () => {
 
-  const { currentEntries, closePasswordManager } = usePasswordManagerContext();
+  const { currentEntries, closePasswordManager, createEntry, generateRandomPassword } = usePasswordManagerContext();
 
   if (!currentEntries) {
     return <div />;
   }
+
+  const createEntryModal = <EntryModal
+    currentEntries={currentEntries}
+    mode="create"
+    onCreateEntry={createEntry}
+    onGenerateRandomPassword={generateRandomPassword}
+  />;
 
   return (
     <PanelSection>
@@ -103,6 +120,12 @@ export const PasswordManagerOpened = () => {
           onClick={() => closePasswordManager()}
         >
           <ButtonItemIconContent icon={<FaLock />}>Close Database</ButtonItemIconContent>
+        </ButtonItem>
+        <ButtonItem
+          layout="below"
+          onClick={() => showModal(createEntryModal, findSP())}
+        >
+          <ButtonItemIconContent icon={<FaPlus />}>Create Entry</ButtonItemIconContent>
         </ButtonItem>
         <div style={{ marginTop: '20px' }}></div>
       </PanelSectionRow>

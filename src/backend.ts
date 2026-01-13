@@ -3,8 +3,18 @@ import { CurrentEntryDetails, Entry, KeepassFlatpakInstallState, SettingsKey, Se
 
 export const openPasswordManagerBe = callable<[string], string>("open_password_manager");
 export const closePasswordManagerBe = callable<[], void>("close_password_manager");
+
 export const getEntriesBe = callable<[string], string[]>("get_entries");
 export const getEntryDetailsBe = callable<[string, string], [string, string]>("get_entry_details");
+
+export const generateRandomPasswordBe = callable<[string], string>("generate_random_password");
+export const createEntryBe = callable<[string, string], void>("create_entry");
+export const removeEntryBe = callable<[string, string], void>("remove_entry");
+export const setEntryUsernameBe = callable<[string, string, string], void>("set_entry_username");
+export const setEntryPasswordBe = callable<[string, string, string], void>("set_entry_password");
+
+export const createDatabaseBe = callable<[string, string], void>("create_database");
+
 export const checkSetupStateBe = callable<[], [boolean, string | null, string]>("check_setup_state");
 
 export const checkKeepassFlatpakInstallStateBe = callable<[], KeepassFlatpakInstallState>("check_keepass_flatpak_install_state");

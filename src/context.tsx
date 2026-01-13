@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe, mapBeEntryDetailsToCurrentEntryDetails, mapBeSetupStateToSetupState, checkSetupStateBe, installKeepassFlatpakBe, checkKeepassFlatpakInstallStateBe, setSettingBe } from "./backend";
+import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe, mapBeEntryDetailsToCurrentEntryDetails, mapBeSetupStateToSetupState, checkSetupStateBe, installKeepassFlatpakBe, checkKeepassFlatpakInstallStateBe, setSettingBe, removeEntryBe, generateRandomPasswordBe, setEntryUsernameBe, setEntryPasswordBe, createEntryBe, createDatabaseBe } from "./backend";
 import React from "react";
 import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry, KeepassFlatpakInstallState, SetupState } from "./interfaces";
 
@@ -24,7 +24,15 @@ interface PasswordManagerContextValue {
     closePasswordManager: () => Promise<void>;
     pasteEntryDetail: (detail: keyof CurrentEntryDetails) => Promise<void>;
     toggleCurrentEntry: (newCurrentEntry: Entry | null, displayMode: CurrentEntryDisplayMode) => Promise<void>;
+    getEntryDetails: (entryPath: string) => Promise<CurrentEntryDetails>;
     installKeepassFlatpak: () => Promise<void>;
+
+    createEntry: (title: string, username: string, password: string) => Promise<void>;
+    editEntry: (title: string, username: string, password: string) => Promise<void>;
+    generateRandomPassword: () => Promise<string>;
+    removeEntry: (entry: Entry) => Promise<void>;
+
+    createDatabase: (databasePath: string, password: string) => Promise<void>;
 }
 
 const PasswordManagerContext = createContext<PasswordManagerContextValue>({
@@ -39,7 +47,13 @@ const PasswordManagerContext = createContext<PasswordManagerContextValue>({
     closePasswordManager: async () => { },
     pasteEntryDetail: async () => { },
     toggleCurrentEntry: async () => { },
-    installKeepassFlatpak: async () => { }
+    getEntryDetails: async () => ({ username: '', password: '' }),
+    installKeepassFlatpak: async () => { },
+    createEntry: async () => { },
+    editEntry: async () => { },
+    generateRandomPassword: async () => 'abc',
+    removeEntry: async () => { },
+    createDatabase: async () => { },
 });
 
 export interface PasswordMangerContextProviderProps {
@@ -72,8 +86,10 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
     }
 
     const reloadEntries = async () => {
-        let entries = await getEntriesBe(securityToken);
-        await setCurrentEntries(mapBeEntriesToEntries(entries));
+        const beEntries = await getEntriesBe(securityToken);
+        const entries = mapBeEntriesToEntries(beEntries);
+        await setCurrentEntries(entries);
+        return entries;
     }
 
     const openPasswordManager = async (password: string) => handleErrors(
@@ -160,7 +176,7 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
     };
 
     useEffect(() => {
-        if(keepassFlatpakInstallState !== 'installing') {
+        if (keepassFlatpakInstallState !== 'installing') {
             return;
         }
 
@@ -186,12 +202,49 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
 
     const selectDatabase = async (databasePath: string) => {
         let resultingPath: string | null = databasePath;
-        if(!databasePath.endsWith('.kdbx')) {
+        if (!databasePath.endsWith('.kdbx')) {
             resultingPath = null;
         }
 
         await setSettingBe('databasePath', resultingPath);
         await reloadSetupState();
+    }
+
+    const createEntry = async (title: string, username: string, password: string) => {
+        await createEntryBe(securityToken, title);
+        await setEntryUsernameBe(securityToken, title, username);
+        await setEntryPasswordBe(securityToken, title, password);
+        const entries = await reloadEntries();
+
+        const createdEntry = entries?.find(entry => entry.path === title);
+
+        if (!createdEntry) {
+            return;
+        }
+
+        await toggleCurrentEntry(createdEntry, 'copy');
+    }
+
+    const editEntry = async (title: string, username: string, password: string) => {
+        await setEntryUsernameBe(securityToken, title, username);
+        await setEntryPasswordBe(securityToken, title, password);
+        await reloadEntries();
+    }
+
+    const generateRandomPassword = async () => {
+        const result = await generateRandomPasswordBe(securityToken);
+        return result;
+    }
+
+    const removeEntry = async (entry: Entry) => {
+        await removeEntryBe(securityToken, entry.path);
+        await reloadEntries();
+        toggleCurrentEntry(null, 'copy');
+    }
+
+    const createDatabase = async (databasePath: string, password: string) => {
+        await createDatabaseBe(databasePath, password);
+        await selectDatabase(databasePath);
     }
 
     const value: PasswordManagerContextValue = {
@@ -206,7 +259,13 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         closePasswordManager,
         pasteEntryDetail,
         toggleCurrentEntry,
+        getEntryDetails,
         installKeepassFlatpak,
+        createEntry,
+        editEntry,
+        generateRandomPassword,
+        removeEntry,
+        createDatabase,
     };
 
     return <PasswordManagerContext.Provider value={value}>

@@ -1,9 +1,11 @@
-import { ButtonItem } from "@decky/ui";
-import { FaCaretDown, FaCaretRight, FaUser, FaKey, FaEye, FaFolder, FaEyeSlash, FaInfoCircle } from "react-icons/fa";
+import { ButtonItem, DialogButton, Field, findSP, Focusable, showModal } from "@decky/ui";
+import { FaCaretDown, FaCaretRight, FaUser, FaKey, FaEye, FaFolder, FaEyeSlash, FaInfoCircle, FaEdit, FaTrash, FaBolt } from "react-icons/fa";
 import { usePasswordManagerContext } from "../context";
 import { Entry } from "../interfaces";
 import { ButtonContentOverflow, ButtonItemIconContent } from "./shared";
 import { useEffect, useRef } from "react";
+import { EntryModal } from "./modals/entry-modal";
+import { RemoveEntryModal } from "./modals/remove-entry-modal";
 
 interface DetailDescriptionProps {
   children?: React.ReactNode;
@@ -86,7 +88,17 @@ export const EntryComponent = (props: EntryComponentProps) => {
 
 export const EntryContent = () => {
 
-  const { pasteEntryDetail, currentEntryDetails, toggleCurrentEntry, currentEntry } = usePasswordManagerContext();
+  const {
+    pasteEntryDetail,
+    currentEntryDetails,
+    currentEntry,
+    removeEntry,
+    editEntry,
+    getEntryDetails,
+    generateRandomPassword,
+    toggleCurrentEntry,
+    currentEntries
+  } = usePasswordManagerContext();
 
   if (!currentEntry) {
     return <div />;
@@ -95,6 +107,31 @@ export const EntryContent = () => {
   const style: React.CSSProperties = {
     paddingLeft: '20px'
   };
+
+  const onEditEntry = async () => {
+
+    const entryDetails = await getEntryDetails(currentEntry.path);
+
+    const editModal = <EntryModal
+      mode="edit"
+      currentEntries={currentEntries}
+      entry={currentEntry}
+      entryDetails={entryDetails}
+      onEditEntry={editEntry}
+      onGenerateRandomPassword={generateRandomPassword}
+    />;
+
+    showModal(editModal, findSP());
+  }
+
+  const onRemoveEntry = async () => {
+    const removeModal = <RemoveEntryModal
+      entry={currentEntry}
+      onRemoveEntry={() => removeEntry(currentEntry)}
+    />;
+
+    showModal(removeModal, findSP());
+  }
 
   return <div style={style}>
     {
@@ -119,29 +156,35 @@ export const EntryContent = () => {
           Paste
         </ButtonItem>
 
-        {
-          currentEntry.displayMode === "copy"
-            ? <ButtonItem
-              layout="below"
-              label="Credentials"
-              icon={<FaEye />}
-              onClick={() => {
-                toggleCurrentEntry(currentEntry, 'full');
-              }}
-            >
-              Show
-            </ButtonItem>
-            : <ButtonItem
-              label="Credentials"
-              layout="below"
-              icon={<FaEyeSlash />}
-              onClick={() => {
-                toggleCurrentEntry(currentEntry, 'copy');
-              }}
-            >
-              Hide
-            </ButtonItem>
-        }
+        <Field childrenLayout="below" childrenContainerWidth="max">
+          <Focusable style={{ display: 'flex', gap: '10px' }}>
+            {
+              currentEntry.displayMode === 'copy' && (
+                <DialogButton
+                  style={{ minWidth: '0', paddingLeft: '0', paddingRight: '0' }}
+                  onClick={() => toggleCurrentEntry(currentEntry, 'full')}
+                ><FaEye></FaEye></DialogButton>
+              )
+            }
+            {
+              currentEntry.displayMode === 'full' && (
+                <DialogButton
+                  style={{ minWidth: '0', paddingLeft: '0', paddingRight: '0' }}
+                  onClick={() => toggleCurrentEntry(currentEntry, 'copy')}
+                ><FaEyeSlash></FaEyeSlash></DialogButton>
+              )
+            }
+            <DialogButton
+              style={{ minWidth: '0', paddingLeft: '0', paddingRight: '0' }}
+              className="DialogButton Secondary"
+              onClick={onEditEntry}
+            ><FaEdit></FaEdit></DialogButton>
+            <DialogButton
+              style={{ minWidth: '0', paddingLeft: '0', paddingRight: '0' }}
+              onClick={onRemoveEntry}
+            ><FaTrash></FaTrash></DialogButton>
+          </Focusable>
+        </Field>
       </>
     }
   </div>;

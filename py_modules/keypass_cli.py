@@ -1,5 +1,6 @@
 import asyncio
 from logging import Logger
+import shlex
 import subprocess
 
 class KeypassCli:
@@ -110,6 +111,44 @@ class KeypassCli:
 
         await self._read_until_input_expected()
         return result[1:]
+
+    async def edit_entry_password(self, entry_name: str, password: str):
+        await self._send(f"edit \"{entry_name}\" -p")
+        
+        await self.process.stdout.readuntil("Enter new password for entry".encode())
+
+        await self._send(password)
+        result = await self._read(0.3)
+        if len(result) < 1:
+            raise ValueError("CLI results out of order!")
+
+        await self._read_until_input_expected()
+
+    async def run_non_interactive_command(self, cmd: str, password: str):
+
+        command = self._get_keyypass_command(*shlex.split(cmd))
+        
+        result = await asyncio.create_subprocess_exec(
+            *command,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT,
+            env=self._get_env_variables()
+        )
+
+        await result.stdout.readuntil("Enter password to encrypt database".encode())
+        result.stdin.write((password + "\n").encode())
+        await result.stdin.drain()
+
+        await result.stdout.readuntil("Repeat password".encode())
+        result.stdin.write((password + "\n").encode())
+        await result.stdin.drain()
+
+        stdout, stderr = await result.communicate()
+        if result.returncode != 0:
+            error_output = stdout.decode() if stdout else "No output"
+            self.logger.error(f"Command failed: {cmd}, returncode: {result.returncode}, output: {error_output}")
+            raise ValueError(f"Failed to run non-interactive command: {cmd}. Error: {error_output}")
 
     def close(self):        
         self.process.kill()
