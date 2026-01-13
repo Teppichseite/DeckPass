@@ -36,10 +36,12 @@ export const EntryModal = (props: EntryModalProps) => {
     const [username, setUsername] = useState<string>(initialValues.username);
     const [password, setPassword] = useState<string>(initialValues.password);
 
+    const isTitleValid = (title: string) => /^[a-zA-Z0-9\s_-]*$/.test(title);
+
     const onSetTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = e.target.value;
 
-        if (/^[a-zA-Z0-9\s]*$/.test(newValue)) {
+        if (isTitleValid(newValue)) {
             setTitle(newValue);
         }
     }
@@ -92,7 +94,7 @@ export const EntryModal = (props: EntryModalProps) => {
                     <TextField
                         label="Title"
                         value={title}
-                        disabled={isLoading}
+                        disabled={isLoading || !isTitleValid(title)}
                         onChange={onSetTitle}
                     />
 

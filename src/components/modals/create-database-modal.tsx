@@ -18,12 +18,14 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
     const onSetTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = e.target.value;
 
-        if (/^[a-zA-Z0-9\s]*$/.test(newValue)) {
+        if (/^[a-zA-Z0-9\s_-]*$/.test(newValue)) {
             setTitle(newValue);
         }
     }
 
-    const databasePath = `${saveFolder}/${title}.kdbx`;
+    const trimmedTitle = title.trim();
+
+    const databasePath = `${saveFolder}/${trimmedTitle}.kdbx`;
 
     const onSelectFolder = async () => {
         await openFilePicker(
@@ -33,7 +35,7 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
             });
     }
 
-    const canConfirm = !!saveFolder && !!title && !!password;
+    const canConfirm = !!saveFolder && !!trimmedTitle && !!password;
 
     const onConfirm = async () => {
         await props.onCreateDatabase(databasePath, password);
@@ -62,7 +64,7 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
 
 
                 <div style={{ marginBottom: '40px' }}>
-                    Database will be stored at: {!!title && !!saveFolder ? databasePath : 'Not set'}
+                    Database will be stored at: {!!trimmedTitle && !!saveFolder ? databasePath : 'Not set'}
                 </div>
 
                 <PasswordInput
