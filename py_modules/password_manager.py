@@ -95,7 +95,7 @@ class PasswordManager:
         await self.keepass_cli.run_command(f"rm \"{entry_name}\"", 0.3)
 
     async def create_database(self, database_path: str, password: str):
-        await self.keepass_cli.run_non_interactive_command(f"db-create \"{database_path}\" -p", password)
+        await self.keepass_cli.create_database(database_path, password)
 
     def close(self):
         self.entries = []
