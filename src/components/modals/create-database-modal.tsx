@@ -2,7 +2,7 @@ import { FileSelectionType, openFilePicker } from "@decky/api";
 import { Button, ModalRoot, ModalRootProps, TextField } from "@decky/ui";
 import { useState } from "react";
 import { ButtonItemIconContent, ModalContent } from "../shared";
-import { FaDatabase, FaFolder } from "react-icons/fa";
+import { FaFolder, FaPlus } from "react-icons/fa";
 import { PasswordInput } from "../password-input";
 
 export interface CreateDatabaseModalProps extends ModalRootProps {
@@ -40,7 +40,7 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
     };
 
     return <ModalRoot onCancel={() => { props.closeModal?.() }}>
-        <ModalContent icon={<FaDatabase />} title="Create Database"
+        <ModalContent icon={<FaPlus />} title="Create Database"
             onConfirm={onConfirm}
             canConfirm={canConfirm}
             closeModal={() => { props.closeModal?.() }}>

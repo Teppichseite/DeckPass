@@ -1,5 +1,5 @@
 import { PanelSection, PanelSectionRow, ButtonItem, showModal, findSP } from "@decky/ui";
-import { FaDatabase, FaDesktop, FaFolder, FaKey, FaLock, FaLockOpen, FaPlus } from "react-icons/fa";
+import { FaDatabase, FaDesktop, FaKey, FaLock, FaLockOpen, FaPlus } from "react-icons/fa";
 import { usePasswordManagerContext } from "../context";
 import { EntryComponent } from "./entry";
 import { ButtonItemIconContent } from "./shared";
@@ -60,7 +60,7 @@ export const PasswordManagerClosed = () => {
           disabled={!isSetup}
           onClick={() => showModal(openDatabaseModal, findSP())}
         >
-          <ButtonItemIconContent icon={<FaLockOpen />}>Open Database</ButtonItemIconContent>
+          <ButtonItemIconContent icon={<FaLockOpen />}>Unlock Database</ButtonItemIconContent>
         </ButtonItem>
 
         <ButtonItem
@@ -68,7 +68,7 @@ export const PasswordManagerClosed = () => {
           disabled={!setupState?.areDependenciesSetup}
           onClick={() => onSelectDatabase()}
         >
-          <ButtonItemIconContent icon={<FaFolder />}>Select Database</ButtonItemIconContent>
+          <ButtonItemIconContent icon={<FaDatabase />}>Select Database</ButtonItemIconContent>
         </ButtonItem>
 
         <ButtonItem
@@ -77,7 +77,7 @@ export const PasswordManagerClosed = () => {
           onClick={() => showModal(createDatabaseModal, findSP())}
         >
           <ButtonItemIconContent
-            icon={<FaDatabase />}>
+            icon={<FaPlus />}>
             Create Database
           </ButtonItemIconContent>
         </ButtonItem>
@@ -119,7 +119,7 @@ export const PasswordManagerOpened = () => {
           layout="below"
           onClick={() => closePasswordManager()}
         >
-          <ButtonItemIconContent icon={<FaLock />}>Close Database</ButtonItemIconContent>
+          <ButtonItemIconContent icon={<FaLock />}>Lock Database</ButtonItemIconContent>
         </ButtonItem>
         <ButtonItem
           layout="below"

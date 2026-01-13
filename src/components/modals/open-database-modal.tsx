@@ -19,7 +19,7 @@ export const OpenDatabaseModal = (props: OpenDatabaseModal) => {
     return <ModalRoot onCancel={() => { props.closeModal?.() }}>
         <ModalContent
             icon={<FaLockOpen />}
-            title="Open Database"
+            title="Unlock Database"
             onConfirm={onConfirm}
             canConfirm={true}
             closeModal={props.closeModal}>
