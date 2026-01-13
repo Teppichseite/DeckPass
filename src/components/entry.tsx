@@ -1,5 +1,16 @@
 import { ButtonItem, DialogButton, Field, findSP, Focusable, showModal } from "@decky/ui";
-import { FaCaretDown, FaCaretRight, FaUser, FaKey, FaEye, FaFolder, FaEyeSlash, FaInfoCircle, FaEdit, FaTrash, FaBolt } from "react-icons/fa";
+import {
+  FaCaretDown,
+  FaCaretRight,
+  FaUser,
+  FaKey,
+  FaEye,
+  FaFolder,
+  FaEyeSlash,
+  FaInfoCircle,
+  FaEdit,
+  FaTrash,
+} from "react-icons/fa";
 import { usePasswordManagerContext } from "../context";
 import { Entry } from "../interfaces";
 import { ButtonContentOverflow, ButtonItemIconContent } from "./shared";
@@ -12,33 +23,55 @@ interface DetailDescriptionProps {
 }
 
 const DetailDescription = ({ children }: DetailDescriptionProps) =>
-  children ? <div style={{
-    fontSize: '15px',
-    overflowWrap: 'break-word',
-    paddingTop: '10px',
-    whiteSpace: 'pre-wrap'
-  }}>{children}</div>
-    : undefined;
+  children ? (
+    <div
+      style={{
+        fontSize: "15px",
+        overflowWrap: "break-word",
+        paddingTop: "10px",
+        whiteSpace: "pre-wrap",
+      }}
+    >
+      {children}
+    </div>
+  ) : undefined;
 
 export const PastingInstructions = () => {
-  return <DetailDescription>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px', marginTop: '5px' }}>
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <FaInfoCircle size={18} />
+  return (
+    <DetailDescription>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "5px",
+          marginBottom: "5px",
+          marginTop: "5px",
+        }}
+      >
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <FaInfoCircle size={18} />
+        </div>
+        <div style={{ flex: 4 }}>
+          <strong>Select</strong> an input field <strong>before</strong> clicking on the
+          paste button.
+        </div>
       </div>
-      <div style={{ flex: 4 }}>
-        <strong>Select</strong> an input field <strong>before</strong> clicking on the paste button.
-      </div>
-    </div>
-  </DetailDescription>
-}
+    </DetailDescription>
+  );
+};
 
 export interface EntryComponentProps {
   entry: Entry;
 }
 
 export const EntryComponent = (props: EntryComponentProps) => {
-
   const { toggleCurrentEntry, currentEntry } = usePasswordManagerContext();
 
   const isCurrentEntry = currentEntry?.path === props.entry.path;
@@ -52,42 +85,43 @@ export const EntryComponent = (props: EntryComponentProps) => {
 
     if (isCurrentEntry) {
       ref.current.scrollIntoView();
-      const buttonItem = ref.current.querySelector('button')
+      const buttonItem = ref.current.querySelector("button");
       buttonItem?.focus();
     }
   }, [isCurrentEntry, ref, ref.current]);
 
-  return <div>
-    <ButtonContentOverflow>
-      <div ref={ref}>
-        <ButtonItem
-          layout="below"
-          onClick={() => {
-            if (isCurrentEntry) {
-              toggleCurrentEntry(null, 'copy');
-              return;
-            }
+  return (
+    <div>
+      <ButtonContentOverflow>
+        <div ref={ref}>
+          <ButtonItem
+            layout="below"
+            onClick={() => {
+              if (isCurrentEntry) {
+                toggleCurrentEntry(null, "copy");
+                return;
+              }
 
-            toggleCurrentEntry(props.entry, 'copy');
-          }}
-          label={props.entry.folderPath}
-          icon={props.entry.folderPath ? <FaFolder /> : undefined}
-          description={isCurrentEntry
-            ? <PastingInstructions />
-            : undefined}
-        >
-          <ButtonItemIconContent
-            icon={isCurrentEntry ? <FaCaretDown /> : <FaCaretRight />}
-          >{props.entry.title}</ButtonItemIconContent>
-        </ButtonItem>
-      </div>
-    </ButtonContentOverflow>
-    {isCurrentEntry && <EntryContent />}
-  </div>
-}
+              toggleCurrentEntry(props.entry, "copy");
+            }}
+            label={props.entry.folderPath}
+            icon={props.entry.folderPath ? <FaFolder /> : undefined}
+            description={isCurrentEntry ? <PastingInstructions /> : undefined}
+          >
+            <ButtonItemIconContent
+              icon={isCurrentEntry ? <FaCaretDown /> : <FaCaretRight />}
+            >
+              {props.entry.title}
+            </ButtonItemIconContent>
+          </ButtonItem>
+        </div>
+      </ButtonContentOverflow>
+      {isCurrentEntry && <EntryContent />}
+    </div>
+  );
+};
 
 export const EntryContent = () => {
-
   const {
     pasteEntryDetail,
     currentEntryDetails,
@@ -97,7 +131,7 @@ export const EntryContent = () => {
     getEntryDetails,
     generateRandomPassword,
     toggleCurrentEntry,
-    currentEntries
+    currentEntries,
   } = usePasswordManagerContext();
 
   if (!currentEntry) {
@@ -105,87 +139,100 @@ export const EntryContent = () => {
   }
 
   const style: React.CSSProperties = {
-    paddingLeft: '20px'
+    paddingLeft: "20px",
   };
 
   const onEditEntry = async () => {
-
     const entryDetails = await getEntryDetails(currentEntry.path);
 
-    const editModal = <EntryModal
-      mode="edit"
-      currentEntries={currentEntries}
-      entry={currentEntry}
-      entryDetails={entryDetails}
-      onEditEntry={editEntry}
-      onGenerateRandomPassword={generateRandomPassword}
-    />;
+    const editModal = (
+      <EntryModal
+        mode="edit"
+        currentEntries={currentEntries}
+        entry={currentEntry}
+        entryDetails={entryDetails}
+        onEditEntry={editEntry}
+        onGenerateRandomPassword={generateRandomPassword}
+      />
+    );
 
     showModal(editModal, findSP());
-  }
+  };
 
   const onRemoveEntry = async () => {
-    const removeModal = <RemoveEntryModal
-      entry={currentEntry}
-      onRemoveEntry={() => removeEntry(currentEntry)}
-    />;
+    const removeModal = (
+      <RemoveEntryModal
+        entry={currentEntry}
+        onRemoveEntry={() => removeEntry(currentEntry)}
+      />
+    );
 
     showModal(removeModal, findSP());
-  }
+  };
 
-  return <div style={style}>
-    {
-      <>
-        <ButtonItem
-          layout="below"
-          icon={<FaUser></FaUser>}
-          label="Username"
-          onClick={() => pasteEntryDetail('username')}
-          description={<DetailDescription>{currentEntryDetails?.username}</DetailDescription>}
-        >
-          Paste
-        </ButtonItem>
-
-        <ButtonItem
-          layout="below"
-          label="Password"
-          icon={<FaKey></FaKey>}
-          onClick={() => pasteEntryDetail('password')}
-          description={<DetailDescription>{currentEntryDetails?.password}</DetailDescription>}
-        >
-          Paste
-        </ButtonItem>
-
-        <Field childrenLayout="below" childrenContainerWidth="max">
-          <Focusable style={{ display: 'flex', gap: '10px' }}>
-            {
-              currentEntry.displayMode === 'copy' && (
-                <DialogButton
-                  style={{ minWidth: '0', paddingLeft: '0', paddingRight: '0' }}
-                  onClick={() => toggleCurrentEntry(currentEntry, 'full')}
-                ><FaEye></FaEye></DialogButton>
-              )
+  return (
+    <div style={style}>
+      {
+        <>
+          <ButtonItem
+            layout="below"
+            icon={<FaUser></FaUser>}
+            label="Username"
+            onClick={() => pasteEntryDetail("username")}
+            description={
+              <DetailDescription>{currentEntryDetails?.username}</DetailDescription>
             }
-            {
-              currentEntry.displayMode === 'full' && (
-                <DialogButton
-                  style={{ minWidth: '0', paddingLeft: '0', paddingRight: '0' }}
-                  onClick={() => toggleCurrentEntry(currentEntry, 'copy')}
-                ><FaEyeSlash></FaEyeSlash></DialogButton>
-              )
+          >
+            Paste
+          </ButtonItem>
+
+          <ButtonItem
+            layout="below"
+            label="Password"
+            icon={<FaKey></FaKey>}
+            onClick={() => pasteEntryDetail("password")}
+            description={
+              <DetailDescription>{currentEntryDetails?.password}</DetailDescription>
             }
-            <DialogButton
-              style={{ minWidth: '0', paddingLeft: '0', paddingRight: '0' }}
-              className="DialogButton Secondary"
-              onClick={onEditEntry}
-            ><FaEdit></FaEdit></DialogButton>
-            <DialogButton
-              style={{ minWidth: '0', paddingLeft: '0', paddingRight: '0' }}
-              onClick={onRemoveEntry}
-            ><FaTrash></FaTrash></DialogButton>
-          </Focusable>
-        </Field>
-      </>
-    }
-  </div>;
-}
+          >
+            Paste
+          </ButtonItem>
+
+          <Field childrenLayout="below" childrenContainerWidth="max">
+            <Focusable style={{ display: "flex", gap: "10px" }}>
+              {currentEntry.displayMode === "copy" && (
+                <DialogButton
+                  style={{ minWidth: "0", paddingLeft: "0", paddingRight: "0" }}
+                  onClick={() => toggleCurrentEntry(currentEntry, "full")}
+                >
+                  <FaEye></FaEye>
+                </DialogButton>
+              )}
+              {currentEntry.displayMode === "full" && (
+                <DialogButton
+                  style={{ minWidth: "0", paddingLeft: "0", paddingRight: "0" }}
+                  onClick={() => toggleCurrentEntry(currentEntry, "copy")}
+                >
+                  <FaEyeSlash></FaEyeSlash>
+                </DialogButton>
+              )}
+              <DialogButton
+                style={{ minWidth: "0", paddingLeft: "0", paddingRight: "0" }}
+                className="DialogButton Secondary"
+                onClick={onEditEntry}
+              >
+                <FaEdit></FaEdit>
+              </DialogButton>
+              <DialogButton
+                style={{ minWidth: "0", paddingLeft: "0", paddingRight: "0" }}
+                onClick={onRemoveEntry}
+              >
+                <FaTrash></FaTrash>
+              </DialogButton>
+            </Focusable>
+          </Field>
+        </>
+      }
+    </div>
+  );
+};
