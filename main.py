@@ -89,14 +89,23 @@ class Plugin:
             decky.logger.error(error_message, exc_info=True)
             raise ValueError(error_message)
 
-    async def create_entry(self, security_token: str, entry_name: str):
+    async def create_entry(self, security_token: str, entry_name: str, username: str, password: str):
         try:
             decky.logger.info(f"Creating entry {entry_name}")
-            await asyncio.wait_for(self.pm.create_entry(security_token, entry_name), 5)#
+            await asyncio.wait_for(self.pm.create_entry(security_token, entry_name, username, password), 5)
             decky.logger.info(f"Created entry {entry_name}")
         except:
             await self.close_password_manager()
             error_message = "Failed to create entry!"
+            decky.logger.error(error_message, exc_info=True)
+            raise ValueError(error_message)
+
+    async def edit_entry(self, security_token: str, entry_name: str, new_entry_name: str, username: str, password: str):
+        try:
+            await asyncio.wait_for(self.pm.edit_entry(security_token, entry_name, new_entry_name, username, password), 5)
+        except:
+            await self.close_password_manager()
+            error_message = "Failed to edit entry!"
             decky.logger.error(error_message, exc_info=True)
             raise ValueError(error_message)
 
@@ -106,24 +115,6 @@ class Plugin:
         except:
             await self.close_password_manager()
             error_message = "Failed to remove entry!"
-            decky.logger.error(error_message, exc_info=True)
-            raise ValueError(error_message)
-
-    async def set_entry_username(self, security_token: str, entry_name: str, username: str):
-        try:
-            await asyncio.wait_for(self.pm.set_entry_username(security_token, entry_name, username), 5)
-        except:
-            await self.close_password_manager()
-            error_message = "Failed to set entry username!"
-            decky.logger.error(error_message, exc_info=True)
-            raise ValueError(error_message)
-
-    async def set_entry_password(self, security_token: str, entry_name: str, password: str):
-        try:
-            await asyncio.wait_for(self.pm.set_entry_password(security_token, entry_name, password), 5)
-        except:
-            await self.close_password_manager()
-            error_message = "Failed to set entry password!"
             decky.logger.error(error_message, exc_info=True)
             raise ValueError(error_message)
 

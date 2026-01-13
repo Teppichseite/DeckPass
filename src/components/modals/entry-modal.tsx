@@ -16,7 +16,7 @@ export type EntryModalProps = ModalRootProps & {
             mode: 'edit';
             entry: Entry;
             entryDetails: CurrentEntryDetails;
-            onEditEntry: (title: string, username: string, password: string) => Promise<void>;
+            onEditEntry: (title: string, newTitle: string, username: string, password: string) => Promise<void>;
         }
     )
 
@@ -50,7 +50,7 @@ export const EntryModal = (props: EntryModalProps) => {
         if (props.mode === 'create') {
             await props.onCreateEntry(title, username, password);
         } else {
-            await props.onEditEntry(title, username, password);
+            await props.onEditEntry(initialValues.title, title, username, password);
         }
     };
 
@@ -83,7 +83,7 @@ export const EntryModal = (props: EntryModalProps) => {
     return <ModalRoot onCancel={() => { props.closeModal?.() }}>
         <ModalContent
             icon={props.mode === 'create' ? <FaPlus /> : <FaEdit />}
-            title={props.mode === 'create' ? 'Create Entry' : 'Edit Entry'}
+            title={props.mode === 'create' ? 'Create Entry' : `Edit Entry ${initialValues.title}`}
             onConfirm={onConfirm}
             canConfirm={canSave() && !titleExists}
             closeModal={props.closeModal}>
@@ -92,7 +92,7 @@ export const EntryModal = (props: EntryModalProps) => {
                     <TextField
                         label="Title"
                         value={title}
-                        disabled={props.mode === 'edit' || isLoading}
+                        disabled={isLoading}
                         onChange={onSetTitle}
                     />
 

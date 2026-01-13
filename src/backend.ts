@@ -8,10 +8,9 @@ export const getEntriesBe = callable<[string], string[]>("get_entries");
 export const getEntryDetailsBe = callable<[string, string], [string, string]>("get_entry_details");
 
 export const generateRandomPasswordBe = callable<[string], string>("generate_random_password");
-export const createEntryBe = callable<[string, string], void>("create_entry");
+export const createEntryBe = callable<[string, string, string, string], void>("create_entry");
+export const editEntryBe = callable<[string, string, string, string, string], void>("edit_entry");
 export const removeEntryBe = callable<[string, string], void>("remove_entry");
-export const setEntryUsernameBe = callable<[string, string, string], void>("set_entry_username");
-export const setEntryPasswordBe = callable<[string, string, string], void>("set_entry_password");
 
 export const createDatabaseBe = callable<[string, string], void>("create_database");
 

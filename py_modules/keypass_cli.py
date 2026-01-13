@@ -112,10 +112,18 @@ class KeypassCli:
         await self._read_until_input_expected()
         return result[1:]
 
-    async def edit_entry_password(self, entry_name: str, password: str):
-        await self._send(f"edit \"{entry_name}\" -p")
+    async def create_entry(self, entry_name: str, username: str, password: str):
+        await self._send(f"add \"{entry_name}\" -u \"{username}\" -p")
         
-        await self.process.stdout.readuntil("Enter new password for entry".encode())
+        await self._send_entry_password(password, "Enter password for new entry")
+
+    async def edit_entry(self, entry_name: str, new_entry_name: str, username: str, password: str):
+        await self._send(f"edit \"{entry_name}\" -t \"{new_entry_name}\" -u \"{username}\" -p")
+
+        await self._send_entry_password(password, "Enter new password for entry")
+
+    async def _send_entry_password(self, password: str, prompt: str):  
+        await self.process.stdout.readuntil(prompt.encode())
 
         await self._send(password)
         result = await self._read(0.3)

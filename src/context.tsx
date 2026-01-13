@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe, mapBeEntryDetailsToCurrentEntryDetails, mapBeSetupStateToSetupState, checkSetupStateBe, installKeepassFlatpakBe, checkKeepassFlatpakInstallStateBe, setSettingBe, removeEntryBe, generateRandomPasswordBe, setEntryUsernameBe, setEntryPasswordBe, createEntryBe, createDatabaseBe } from "./backend";
+import { closePasswordManagerBe, mapBeEntriesToEntries, getEntriesBe, getEntryDetailsBe, openPasswordManagerBe, mapBeEntryDetailsToCurrentEntryDetails, mapBeSetupStateToSetupState, checkSetupStateBe, installKeepassFlatpakBe, checkKeepassFlatpakInstallStateBe, setSettingBe, removeEntryBe, generateRandomPasswordBe, createEntryBe, createDatabaseBe, editEntryBe } from "./backend";
 import React from "react";
 import { CurrentEntry, CurrentEntryDetails, CurrentEntryDisplayMode, Entry, KeepassFlatpakInstallState, SetupState } from "./interfaces";
 
@@ -28,7 +28,7 @@ interface PasswordManagerContextValue {
     installKeepassFlatpak: () => Promise<void>;
 
     createEntry: (title: string, username: string, password: string) => Promise<void>;
-    editEntry: (title: string, username: string, password: string) => Promise<void>;
+    editEntry: (title: string, newTitle: string, username: string, password: string) => Promise<void>;
     generateRandomPassword: () => Promise<string>;
     removeEntry: (entry: Entry) => Promise<void>;
 
@@ -211,9 +211,7 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
     }
 
     const createEntry = async (title: string, username: string, password: string) => {
-        await createEntryBe(securityToken, title);
-        await setEntryUsernameBe(securityToken, title, username);
-        await setEntryPasswordBe(securityToken, title, password);
+        await createEntryBe(securityToken, title, username, password);
         const entries = await reloadEntries();
 
         const createdEntry = entries?.find(entry => entry.path === title);
@@ -225,9 +223,8 @@ export const PasswordMangerContextProvider = (props: PasswordMangerContextProvid
         await toggleCurrentEntry(createdEntry, 'copy');
     }
 
-    const editEntry = async (title: string, username: string, password: string) => {
-        await setEntryUsernameBe(securityToken, title, username);
-        await setEntryPasswordBe(securityToken, title, password);
+    const editEntry = async (title: string, newTitle: string, username: string, password: string) => {
+        await editEntryBe(securityToken, title, newTitle, username, password);
         await reloadEntries();
     }
 
