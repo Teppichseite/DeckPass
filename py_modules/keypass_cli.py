@@ -112,13 +112,16 @@ class KeypassCli:
         await self._read_until_input_expected()
         return result[1:]
 
+    def _normalize_username(self, username: str) -> str:
+        return username if username is not "" else "-"
+
     async def create_entry(self, entry_name: str, username: str, password: str):
-        await self._send(f"add \"{entry_name}\" -u \"{username}\" -p")
+        await self._send(f"add \"{entry_name}\" -u \"{self._normalize_username(username)}\" -p")
         
         await self._send_entry_password(password, "Enter password for new entry")
 
     async def edit_entry(self, entry_name: str, new_entry_name: str, username: str, password: str):
-        await self._send(f"edit \"{entry_name}\" -t \"{new_entry_name}\" -u \"{username}\" -p")
+        await self._send(f"edit \"{entry_name}\" -t \"{new_entry_name}\" -u \"{self._normalize_username(username)}\" -p")
 
         await self._send_entry_password(password, "Enter new password for entry")
 

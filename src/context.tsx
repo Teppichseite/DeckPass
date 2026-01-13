@@ -73,19 +73,19 @@ const PasswordManagerContext = createContext<PasswordManagerContextValue>({
   currentEntryDetails: null,
   setupState: null,
   keepassFlatpakInstallState: "initial",
-  selectDatabase: async () => {},
-  openPasswordManager: async () => {},
-  editPasswordManager: async () => {},
-  closePasswordManager: async () => {},
-  pasteEntryDetail: async () => {},
-  toggleCurrentEntry: async () => {},
+  selectDatabase: async () => { },
+  openPasswordManager: async () => { },
+  editPasswordManager: async () => { },
+  closePasswordManager: async () => { },
+  pasteEntryDetail: async () => { },
+  toggleCurrentEntry: async () => { },
   getEntryDetails: async () => ({ username: "", password: "" }),
-  installKeepassFlatpak: async () => {},
-  createEntry: async () => {},
-  editEntry: async () => {},
+  installKeepassFlatpak: async () => { },
+  createEntry: async () => { },
+  editEntry: async () => { },
   generateRandomPassword: async () => "abc",
-  removeEntry: async () => {},
-  createDatabase: async () => {},
+  removeEntry: async () => { },
+  createDatabase: async () => { },
 });
 
 export interface PasswordMangerContextProviderProps {
@@ -215,8 +215,10 @@ export const PasswordMangerContextProvider = (
   }, [keepassFlatpakInstallState]);
 
   const installKeepassFlatpak = async () => {
-    installKeepassFlatpakBe().then(() => {});
-    setKeepassFlatpakInstallState("installing");
+    await handleErrors("Failed to install Keepass Flatpak", async () => {
+      await installKeepassFlatpakBe(); 
+      setKeepassFlatpakInstallState("installing");
+    });
   };
 
   useEffect(() => {
@@ -239,7 +241,8 @@ export const PasswordMangerContextProvider = (
   }, [keepassFlatpakInstallState, setKeepassFlatpakInstallState]);
 
   useEffect(() => {
-    checkKeepassFlatpakInstallStateBe().then((installState) => {
+    handleErrors("Failed to check Keepass Flatpak install state", async () => {
+      const installState = await checkKeepassFlatpakInstallStateBe();
       setKeepassFlatpakInstallState(installState);
     });
   }, []);
@@ -255,16 +258,15 @@ export const PasswordMangerContextProvider = (
   };
 
   const createEntry = async (title: string, username: string, password: string) => {
-    await createEntryBe(securityToken, title, username, password);
-    const entries = await reloadEntries();
-
-    const createdEntry = entries?.find((entry) => entry.path === title);
-
-    if (!createdEntry) {
-      return;
-    }
-
-    await toggleCurrentEntry(createdEntry, "copy");
+    await handleErrors("Failed to create entry", async () => {
+      await createEntryBe(securityToken, title, username, password);
+      const entries = await reloadEntries();
+      const createdEntry = entries?.find((entry) => entry.path === title);
+      if (!createdEntry) {
+        return;
+      }
+      await toggleCurrentEntry(createdEntry, "copy");
+    });
   };
 
   const editEntry = async (
@@ -273,8 +275,10 @@ export const PasswordMangerContextProvider = (
     username: string,
     password: string
   ) => {
-    await editEntryBe(securityToken, title, newTitle, username, password);
-    await reloadEntries();
+    await handleErrors("Failed to edit entry", async () => {
+      await editEntryBe(securityToken, title, newTitle, username, password);
+      await reloadEntries();
+    });
   };
 
   const generateRandomPassword = async () => {
@@ -283,14 +287,18 @@ export const PasswordMangerContextProvider = (
   };
 
   const removeEntry = async (entry: Entry) => {
-    await removeEntryBe(securityToken, entry.path);
-    await reloadEntries();
-    toggleCurrentEntry(null, "copy");
+    await handleErrors("Failed to remove entry", async () => {
+      await removeEntryBe(securityToken, entry.path);
+      await reloadEntries();
+      await toggleCurrentEntry(null, "copy");
+    });
   };
 
   const createDatabase = async (databasePath: string, password: string) => {
-    await createDatabaseBe(databasePath, password);
-    await selectDatabase(databasePath);
+    await handleErrors("Failed to create database", async () => {
+      await createDatabaseBe(databasePath, password);
+      await selectDatabase(databasePath);
+    });
   };
 
   const value: PasswordManagerContextValue = {
