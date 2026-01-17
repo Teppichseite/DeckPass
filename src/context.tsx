@@ -73,19 +73,19 @@ const PasswordManagerContext = createContext<PasswordManagerContextValue>({
   currentEntryDetails: null,
   setupState: null,
   keepassFlatpakInstallState: "initial",
-  selectDatabase: async () => { },
-  openPasswordManager: async () => { },
-  editPasswordManager: async () => { },
-  closePasswordManager: async () => { },
-  pasteEntryDetail: async () => { },
-  toggleCurrentEntry: async () => { },
+  selectDatabase: async () => {},
+  openPasswordManager: async () => {},
+  editPasswordManager: async () => {},
+  closePasswordManager: async () => {},
+  pasteEntryDetail: async () => {},
+  toggleCurrentEntry: async () => {},
   getEntryDetails: async () => ({ username: "", password: "" }),
-  installKeepassFlatpak: async () => { },
-  createEntry: async () => { },
-  editEntry: async () => { },
+  installKeepassFlatpak: async () => {},
+  createEntry: async () => {},
+  editEntry: async () => {},
   generateRandomPassword: async () => "abc",
-  removeEntry: async () => { },
-  createDatabase: async () => { },
+  removeEntry: async () => {},
+  createDatabase: async () => {},
 });
 
 export interface PasswordMangerContextProviderProps {
@@ -216,7 +216,7 @@ export const PasswordMangerContextProvider = (
 
   const installKeepassFlatpak = async () => {
     await handleErrors("Failed to install Keepass Flatpak", async () => {
-      await installKeepassFlatpakBe(); 
+      await installKeepassFlatpakBe();
       setKeepassFlatpakInstallState("installing");
     });
   };

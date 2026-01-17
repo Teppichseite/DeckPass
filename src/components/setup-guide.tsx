@@ -1,4 +1,4 @@
-import { ButtonItem } from "@decky/ui";
+import { ButtonItem, Focusable } from "@decky/ui";
 import { useState } from "react";
 import {
   FaCaretDown,
@@ -40,9 +40,12 @@ export const SetupGuide = () => {
           <KeypassInstallSteps />
           <div style={{ marginTop: "30px" }} />
           <DatabaseCreateSteps />
-          <div style={{ overflowWrap: "break-word", marginTop: "30px" }}>
+          <Focusable
+            onActivate={() => {}}
+            style={{ overflowWrap: "break-word", marginTop: "30px" }}
+          >
             Please visit <strong>{deckPassGithubUrl}</strong> if you encounter any issues.
-          </div>
+          </Focusable>
         </div>
       )}
     </div>
@@ -102,28 +105,23 @@ const DatabaseCreateSteps = () => {
   const listStyle = { paddingInlineStart: "25px" };
 
   return (
-    <div>
+    <Focusable onActivate={() => {}}>
       <h4>
-        <strong>2. Create a Database: {isDoneText(!!setupState?.databasePath)}</strong>
+        <strong>2. Select a Database: {isDoneText(!!setupState?.databasePath)}</strong>
       </h4>
       <ol style={listStyle}>
         <li>
-          Click on <strong>"Create Database"</strong>
+          You can either <strong>create a new database</strong> or select an{" "}
+          <strong>existing KDBX database file</strong>
         </li>
         <li>
-          Within KeePassXC click again on <strong>"Create Database"</strong> and follow
-          the setup steps
+          You can create a new database by clicking on <strong>"Create Database"</strong>
         </li>
-        <li>Add your entries. You can edit the Database later as often as you want</li>
         <li>
-          Select the Database .kdbx file by clicking on <strong>"Select Database"</strong>
-          <ul style={listStyle}>
-            <li>
-              <strong>{isDoneText(!!setupState?.databasePath)}</strong>
-            </li>
-          </ul>
+          Or you can also create a new Database using the{" "}
+          <strong>KeePassXC Desktop application</strong>
         </li>
       </ol>
-    </div>
+    </Focusable>
   );
 };

@@ -38,8 +38,8 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
 
   useEffect(() => {
     if (!saveFolder) {
-        setDoesDatabaseFileExist(false);
-        return;
+      setDoesDatabaseFileExist(false);
+      return;
     }
 
     doesFileExistBe(databasePath).then((res) => {
@@ -47,7 +47,8 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
     });
   }, [databasePath, saveFolder]);
 
-  const canConfirm = !!saveFolder && !!trimmedTitle && !!password && !doesDatabaseFileExist;
+  const canConfirm =
+    !!saveFolder && !!trimmedTitle && !!password && !doesDatabaseFileExist;
 
   const onConfirm = async () => {
     await props.onCreateDatabase(databasePath, password);
@@ -85,10 +86,7 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
 
             <div style={{ marginBottom: "40px" }}>
               {doesDatabaseFileExist && (
-                <div>
-                  Database already exists at:{" "}
-                  {databasePath}
-                </div>
+                <div>Database already exists at: {databasePath}</div>
               )}
 
               {!doesDatabaseFileExist && (
