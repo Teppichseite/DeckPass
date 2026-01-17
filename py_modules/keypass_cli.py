@@ -1,6 +1,5 @@
 import asyncio
 from logging import Logger
-import shlex
 import subprocess
 
 class KeypassCli:
@@ -113,7 +112,7 @@ class KeypassCli:
         return result[1:]
 
     def _normalize_username(self, username: str) -> str:
-        return username if username is not "" else "-"
+        return username if username != "" else "-"
 
     async def create_entry(self, entry_name: str, username: str, password: str):
         await self._send(f"add \"{entry_name}\" -u \"{self._normalize_username(username)}\" -p")
@@ -164,6 +163,12 @@ class KeypassCli:
             error_output = stdout.decode() if stdout else "No output"
             raise ValueError(f"Failed to create database: {database_path}. Error: {error_output}")
 
-    def close(self):        
-        self.process.kill()
+    def close(self):
         self.is_open = False
+        if self.process is None:
+            return
+
+        if self.process.returncode is not None:
+            return;
+
+        self.process.kill()
