@@ -5,6 +5,8 @@ Internally it uses KeePassXC.
 <p float="left">
 <img src="./assets/screenshot1.jpg" alt="Showcase video" width="300"/>
 <img src="./assets/screenshot2.jpg" alt="Showcase static" width="300"/>
+<img src="./assets/screenshot3.jpg" alt="Showcase static" width="600"/>
+<img src="./assets/screenshot4.jpg" alt="Showcase static" width="600"/>
 </p>
 
 ## Plugin Setup
