@@ -117,6 +117,9 @@ class Plugin:
         self.settings.setSetting(key, value)
         self.settings.commit()
 
+    async def does_file_exist(self, path: str):
+        return os.path.exists(path)
+
     async def _main(self): 
         decky.logger.info("Loading DeckPass...")
 

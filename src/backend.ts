@@ -40,6 +40,8 @@ export const installKeepassFlatpakBe = callable<[], void>("install_keepass_flatp
 export const getSettingBe = callable<[SettingsKey], any>("get_setting");
 export const setSettingBe = callable<[SettingsKey, any], void>("set_setting");
 
+export const doesFileExistBe = callable<[string], boolean>("does_file_exist");
+
 export const mapBeEntriesToEntries = (beEntries: string[]): Entry[] => {
   return beEntries
     .map((entry) => {

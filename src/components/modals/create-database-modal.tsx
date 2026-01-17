@@ -1,9 +1,10 @@
 import { FileSelectionType, openFilePicker } from "@decky/api";
 import { Button, ModalRoot, ModalRootProps, TextField } from "@decky/ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ButtonItemIconContent, ModalContent } from "../shared";
 import { FaFolder, FaPlus } from "react-icons/fa";
 import { PasswordInput } from "../password-input";
+import { doesFileExistBe } from "../../backend";
 
 export interface CreateDatabaseModalProps extends ModalRootProps {
   onCreateDatabase: (databasePath: string, password: string) => Promise<void>;
@@ -13,6 +14,7 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
   const [title, setTitle] = useState<string>("");
   const [saveFolder, setSaveFolder] = useState<string | null>(null);
   const [password, setPassword] = useState<string>("");
+  const [doesDatabaseFileExist, setDoesDatabaseFileExist] = useState<boolean>(false);
 
   const onSetTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -34,7 +36,18 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
     );
   };
 
-  const canConfirm = !!saveFolder && !!trimmedTitle && !!password;
+  useEffect(() => {
+    if (!saveFolder) {
+        setDoesDatabaseFileExist(false);
+        return;
+    }
+
+    doesFileExistBe(databasePath).then((res) => {
+      setDoesDatabaseFileExist(res);
+    });
+  }, [databasePath, saveFolder]);
+
+  const canConfirm = !!saveFolder && !!trimmedTitle && !!password && !doesDatabaseFileExist;
 
   const onConfirm = async () => {
     await props.onCreateDatabase(databasePath, password);
@@ -71,8 +84,19 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
             </Button>
 
             <div style={{ marginBottom: "40px" }}>
-              Database will be stored at:{" "}
-              {!!trimmedTitle && !!saveFolder ? databasePath : "Not set"}
+              {doesDatabaseFileExist && (
+                <div>
+                  Database already exists at:{" "}
+                  {databasePath}
+                </div>
+              )}
+
+              {!doesDatabaseFileExist && (
+                <div>
+                  Database will be stored at:{" "}
+                  {!!trimmedTitle && !!saveFolder ? databasePath : "Not set"}
+                </div>
+              )}
             </div>
 
             <PasswordInput
