@@ -72,10 +72,35 @@ class PasswordManager:
 
         return [username, password]
 
+    async def generate_random_password(self, security_token: str):
+        self._validate_security_token(security_token)
+
+        result = await self.keepass_cli.run_command(f"generate -L 32 -l -U -n -s", 0.3)
+
+        return self._remove_last_newline(result[0])
+
+    async def create_entry(self, security_token: str, entry_name: str, username: str, password: str):
+        self._validate_security_token(security_token)
+
+        await self.keepass_cli.create_entry(entry_name, username, password)
+
+    async def edit_entry(self, security_token: str, entry_name: str, new_entry_name: str, username: str, password: str):
+        self._validate_security_token(security_token)
+
+        await self.keepass_cli.edit_entry(entry_name, new_entry_name, username, password)
+
+    async def remove_entry(self, security_token: str, entry_name: str):
+        self._validate_security_token(security_token)
+
+        await self.keepass_cli.run_command(f"rm \"{entry_name}\"", 0.3)
+
+    async def create_database(self, database_path: str, password: str):
+        await self.keepass_cli.create_database(database_path, password)
+
     def close(self):
         self.entries = []
-        self.keepass_cli.close()
         self.security_token = ""
+        self.keepass_cli.close()
 
     def _generate_security_token(self):
         self.security_token = secrets.token_urlsafe(32)

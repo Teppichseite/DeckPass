@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 
 const jsContextState: Record<string, any> = {};
 
-export const useJsContextState = <T>(key: string, initialValue: T): [T, (value: T) => Promise<void>] => {
+export const useJsContextState = <T>(
+  key: string,
+  initialValue: T
+): [T, (value: T) => Promise<void>] => {
   const [state, _setState] = useState<T>(initialValue);
 
   useEffect(() => {
@@ -15,4 +18,4 @@ export const useJsContextState = <T>(key: string, initialValue: T): [T, (value: 
   };
 
   return [state ?? initialValue, setState];
-}
+};

@@ -111,6 +111,64 @@ class KeypassCli:
         await self._read_until_input_expected()
         return result[1:]
 
-    def close(self):        
-        self.process.kill()
+    def _normalize_username(self, username: str) -> str:
+        return username if username != "" else "-"
+
+    async def create_entry(self, entry_name: str, username: str, password: str):
+        await self._send(f"add \"{entry_name}\" -u \"{self._normalize_username(username)}\" -p")
+        
+        await self._send_entry_password(password, "Enter password for new entry")
+
+    async def edit_entry(self, entry_name: str, new_entry_name: str, username: str, password: str):
+        await self._send(f"edit \"{entry_name}\" -t \"{new_entry_name}\" -u \"{self._normalize_username(username)}\" -p")
+
+        await self._send_entry_password(password, "Enter new password for entry")
+
+    async def _send_entry_password(self, password: str, prompt: str):  
+        await self.process.stdout.readuntil(prompt.encode())
+
+        await self._send(password)
+        result = await self._read(0.3)
+        if len(result) < 1:
+            raise ValueError("CLI results out of order!")
+
+        await self._read_until_input_expected()
+
+    async def create_database(self, database_path: str, password: str):
+
+        command = self._get_keyypass_command(
+            "db-create",
+            database_path,
+            "-p"
+        )
+        
+        result = await asyncio.create_subprocess_exec(
+            *command,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT,
+            env=self._get_env_variables()
+        )
+
+        await result.stdout.readuntil("Enter password to encrypt database".encode())
+        result.stdin.write((password + "\n").encode())
+        await result.stdin.drain()
+
+        await result.stdout.readuntil("Repeat password".encode())
+        result.stdin.write((password + "\n").encode())
+        await result.stdin.drain()
+
+        stdout = await result.communicate()
+        if result.returncode != 0:
+            error_output = stdout.decode() if stdout else "No output"
+            raise ValueError(f"Failed to create database: {database_path}. Error: {error_output}")
+
+    def close(self):
         self.is_open = False
+        if self.process is None:
+            return
+
+        if self.process.returncode is not None:
+            return;
+
+        self.process.kill()

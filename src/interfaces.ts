@@ -1,26 +1,26 @@
 export type SetupState = {
-    areDependenciesSetup: boolean;
-    databasePath: string | null;
-    userHomePath: string;
-}
-
-export type Entry = {
-    path: string;
-    title: string;
-    folderPath?: string;
+  areDependenciesSetup: boolean;
+  databasePath: string | null;
+  userHomePath: string;
 };
 
-export type CurrentEntryDisplayMode = 'copy' | 'full';
+export type Entry = {
+  path: string;
+  title: string;
+  folderPath?: string;
+};
+
+export type CurrentEntryDisplayMode = "copy" | "full";
 
 export type CurrentEntryDetails = {
-    username: string;
-    password: string;
+  username: string;
+  password: string;
 };
 
 export type CurrentEntry = Entry & {
-    displayMode: CurrentEntryDisplayMode;
+  displayMode: CurrentEntryDisplayMode;
 };
 
-export type KeepassFlatpakInstallState = 'initial' | 'installing' | 'done' | 'error';
+export type KeepassFlatpakInstallState = "initial" | "installing" | "done" | "error";
 
-export type SettingsKey = 'keepassShortcutAppId' | 'databasePath';
+export type SettingsKey = "keepassShortcutAppId" | "databasePath";
