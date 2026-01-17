@@ -25,7 +25,7 @@
     "clipboard"
   ],
   "author": "Teppichseite",
-  "license": "BSD-3-Clause",
+  "license": "GPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/Teppichseite/DeckPass/issues"
   },

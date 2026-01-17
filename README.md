@@ -83,3 +83,4 @@ To properly build and deploy the plugin manually please refer to this guide: htt
 ## Acknowledgments
 1. **Release workflow** taken from https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/.github/workflows/release.yml
 2. **Steam Shortcut assets** under `./assets/shortcut` are taken from https://www.steamgriddb.com/
+3. **SDH-QuickLaunch** by Fisch03 - The general approach to adding Steam shortcuts and custom artwork was inspired by https://github.com/Fisch03/SDH-QuickLaunch

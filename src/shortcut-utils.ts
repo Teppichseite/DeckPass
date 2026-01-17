@@ -1,3 +1,5 @@
+// Implementation approach inspired by SDH-QuickLaunch (see LICENSE for full attribution)
+
 import { SteamClient } from "@decky/ui/dist/globals/steam-client";
 import capsuleImage from "../assets/shortcut/capsule.png";
 import capsuleWideImage from "../assets/shortcut/capsule-wide.png";
