@@ -80,6 +80,6 @@ The flow of communication between DeckPass and KeePassXC works in the following 
 
 To properly build and deploy the plugin manually please refer to this guide: https://magicpods.app/blog/post-11/
 
-# 🥇 Acknowledgments
+## 🥇 Acknowledgments
 1. **Release workflow** taken from https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/.github/workflows/release.yml
 2. **Steam Shortcut assets** under `./assets/shortcut` are taken from https://www.steamgriddb.com/
