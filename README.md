@@ -9,14 +9,14 @@ Internally it uses KeePassXC.
 <img src="./assets/screenshot4.jpg" alt="Showcase static" width="600"/>
 </p>
 
-## ✨ Features
-- 🔓 Opens any existing **KDBX database file**
-- ⌨️ Access and **paste credentials** into games
-- ✏️ Create, edit and remove **entries**
-- 🆕 Create **new databases** directly
-- 🖥️ Open KeePassXC Application **via shortcut**
+## Features
+- Opens any existing **KDBX database file**
+- Access and **paste credentials** into games
+- Create, edit and remove **entries**
+- Create **new databases** directly
+- Open KeePassXC Application **via shortcut**
 
-## 🛠️ Plugin Setup
+## Plugin Setup
 1. You can install the Plugin in the following ways:
     1. Download the plugin from the **Decky Plugin Store** (Not available yet)
     2. Install the plugin from the **releases page**
@@ -27,11 +27,11 @@ Internally it uses KeePassXC.
     1. Install the KeePassXC Flatpak manually via the **Discover Store**
     2. Or run the following command `flatpak install --user flathub org.keepassxc.KeePassXC`
 
-## ⚠️ Known issues
+## Known issues
 1. When using **Big Picture mode** in Desktop mode, credential pasting does only work within the **Steam interface**, but not within games
 2. Due to a limitation of KeePass, entries which have the **same name within the same folder** are not being displayed
 
-## 🔒 Security considerations
+## Security considerations
 1. DeckPass is creating an interactive KeePass CLI process internally and therefore **does not manage or store any credentials itself persistently**
 2. The KeePass CLI stays active as long as either the CLI itself closes it, or the user closes it **via UI**
 3. DeckPass uses the following methods to reduce **attack surface**
@@ -42,10 +42,10 @@ Internally it uses KeePassXC.
 4. If there is a malicious program or Decky plugin installed it might be able to interact with the running KeePass CLI process under **certain conditions**
 5. The detailed communication flow can be seen below 
 
-## 🔄 Communication between DeckPass and KeePassXC
+## Communication between DeckPass and KeePassXC
 The flow of communication between DeckPass and KeePassXC works in the following way:
 
-### 📂 Database opening
+### Database opening
 1. Python backend checks if the KeePassXC **Flatpak** contains `keepassxc-cli` by **calling the program once**
 2. If condition (1) applies, the database can be opened **via a password**
 3. The password will be entered into an input element and then sent **in plain text** to the Python backend
@@ -55,7 +55,7 @@ The flow of communication between DeckPass and KeePassXC works in the following 
 7. Python backend generates a **short term token** using `secrets.token_urlsafe(32)`, stores it **in memory** and returns it to the frontend
 8. Frontend stores the token in a variable of the **JavaScript module** of the plugin
 
-### 💬 KeePassXC CLI command exchange
+### KeePassXC CLI command exchange
 1. Python Backend keeps the CLI process open until either KeePassXC decides to close it or it was **explicitly closed by the user** via the frontend
 2. The flow for command exchange works like this:
     1. Frontend resolves the **short term token** it got from database opening
@@ -66,7 +66,7 @@ The flow of communication between DeckPass and KeePassXC works in the following 
     5. Backend waits for the response of the CLI and **returns it to the frontend**
     6. Frontend **displays the response**
 
-### 📋 Credential details and pasting commands in detail
+### Credential details and pasting commands in detail
 1. **Credential showcase in DeckPass**
     1. Python Backend requests **clear text credentials** from KeePassXC CLI
     2. Frontend **displays credentials**
@@ -76,10 +76,10 @@ The flow of communication between DeckPass and KeePassXC works in the following 
     2. Frontend closes the **Quick Access Menu**
     3. Frontend simulates **Keyboard Input** for the current application by calling `SteamClient.Input.ControllerKeyboardSendText(credential)` for each character of the credential
 
-## 🚀 Building and Deployment
+## Building and Deployment
 
 To properly build and deploy the plugin manually please refer to this guide: https://magicpods.app/blog/post-11/
 
-## 🥇 Acknowledgments
+## Acknowledgments
 1. **Release workflow** taken from https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/.github/workflows/release.yml
 2. **Steam Shortcut assets** under `./assets/shortcut` are taken from https://www.steamgriddb.com/
