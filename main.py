@@ -57,7 +57,7 @@ class Plugin:
                 raise ValueError("No database path set!")
 
             decky.logger.info(f"Opening database")
-            return await asyncio.wait_for(self.pm.open(database_path, password), 10)
+            return await asyncio.wait_for(self.pm.open(database_path, password), 30)
         except Exception as e:
             await self._handle_error("Failed to open password manager!", False, True)
 
@@ -81,25 +81,25 @@ class Plugin:
 
     async def create_entry(self, security_token: str, entry_name: str, username: str, password: str):
         try:
-            await asyncio.wait_for(self.pm.create_entry(security_token, entry_name, username, password), 5)
+            await asyncio.wait_for(self.pm.create_entry(security_token, entry_name, username, password), 10)
         except Exception as e:
             await self._handle_error("Failed to create entry!", False, True)
 
     async def edit_entry(self, security_token: str, entry_name: str, new_entry_name: str, username: str, password: str):
         try:
-            await asyncio.wait_for(self.pm.edit_entry(security_token, entry_name, new_entry_name, username, password), 5)
+            await asyncio.wait_for(self.pm.edit_entry(security_token, entry_name, new_entry_name, username, password), 10)
         except Exception as e:
             await self._handle_error("Failed to edit entry!", False, True)
 
     async def remove_entry(self, security_token: str, entry_name: str):
         try:
-            await asyncio.wait_for(self.pm.remove_entry(security_token, entry_name), 5)
+            await asyncio.wait_for(self.pm.remove_entry(security_token, entry_name), 10)
         except Exception as e:
             await self._handle_error("Failed to remove entry!", False, True)
 
     async def create_database(self, database_path: str, password: str):
         try:
-            await asyncio.wait_for(self.pm.create_database(database_path, password), 5)
+            await asyncio.wait_for(self.pm.create_database(database_path, password), 10)
         except Exception as e:
             await self._handle_error("Failed to create database!", False, False)
 
