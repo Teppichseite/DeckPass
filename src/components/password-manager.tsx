@@ -37,9 +37,12 @@ export const PasswordManagerClosed = () => {
     <OpenDatabaseModal onOpen={(password) => openPasswordManager(password)} />
   );
 
-  const createDatabaseModal = <CreateDatabaseModal 
-  onCreateDatabase={createDatabase} 
-  userHomePath={setupState?.userHomePath || "/home/deck"} />;
+  const createDatabaseModal = (
+    <CreateDatabaseModal
+      onCreateDatabase={createDatabase}
+      userHomePath={setupState?.userHomePath || "/home/deck"}
+    />
+  );
 
   return (
     <PanelSection>
@@ -73,7 +76,7 @@ export const PasswordManagerClosed = () => {
             style={{
               textAlign: "center",
               marginTop: "20px",
-              marginBottom: "20px"
+              marginBottom: "20px",
             }}
           >
             <strong>No database</strong> is selected yet.

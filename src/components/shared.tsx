@@ -6,12 +6,12 @@ export interface ButtonItemIconContentProps {
   children: React.ReactNode;
   icon: React.ReactNode;
   justifyContent?:
-  | "space-between"
-  | "flex-start"
-  | "flex-end"
-  | "center"
-  | "space-around"
-  | "space-evenly";
+    | "space-between"
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "space-around"
+    | "space-evenly";
 }
 
 export const ButtonItemIconContent = (props: ButtonItemIconContentProps) => (
@@ -22,7 +22,9 @@ export const ButtonItemIconContent = (props: ButtonItemIconContentProps) => (
       justifyContent: props.justifyContent || "space-between",
     }}
   >
-    <div style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>{props.icon}</div>
+    <div style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
+      {props.icon}
+    </div>
     <div
       style={{
         overflow: "hidden",
@@ -89,14 +91,16 @@ export const ModalContent = (props: ModalContentProps) => {
           columnGap: "10px",
         }}
       >
-        <div style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>{props.icon}</div>
+        <div style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
+          {props.icon}
+        </div>
 
         <div
           style={{
             fontWeight: "bold",
             fontSize: "20px",
             whiteSpace: "normal",
-            wordBreak: "break-word"
+            wordBreak: "break-word",
           }}
         >
           {props.title}
