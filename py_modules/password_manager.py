@@ -95,7 +95,7 @@ class PasswordManager:
         self._validate_security_token(security_token)
 
         escaped_entry_name = escape_cli_input(entry_name)
-        await self.keepass_cli.run_command(f"rm {escaped_entry_name}", 1)
+        await self.keepass_cli.run_command(f"rm {escaped_entry_name}", 0.5)
 
     async def create_database(self, database_path: str, password: str):
         await self.keepass_cli.create_database(database_path, password)

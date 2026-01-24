@@ -134,7 +134,7 @@ class KeypassCli:
         await self.process.stdout.readuntil(prompt.encode())
 
         await self._send(password)
-        result = await self._read(0.3)
+        result = await self._read(0.5)
         if len(result) < 1:
             raise ValueError("CLI results out of order!")
 
