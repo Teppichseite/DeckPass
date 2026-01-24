@@ -1,6 +1,6 @@
 {
   "name": "DeckPass",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "DeckPass is a Decky Plugin to access passwords directly in SteamOS gaming mode. Internally it uses KeePassXC.",
   "type": "module",
   "scripts": {
