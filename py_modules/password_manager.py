@@ -5,6 +5,7 @@ import os
 import hmac
 
 from collections import Counter
+from utils import escape_cli_input
 
 class PasswordManager:
 
@@ -63,8 +64,9 @@ class PasswordManager:
 
         self._validate_security_token(security_token)
 
+        escaped_entry_name = escape_cli_input(entry_name)
         entry_details = await self.keepass_cli.run_command(
-            f"show \"{entry_name}\" -s -a UserName -a Password", 0.3
+            f"show {escaped_entry_name} -s -a UserName -a Password", 0.3
         )
 
         username = self._remove_last_newline(entry_details[0])
@@ -92,7 +94,8 @@ class PasswordManager:
     async def remove_entry(self, security_token: str, entry_name: str):
         self._validate_security_token(security_token)
 
-        await self.keepass_cli.run_command(f"rm \"{entry_name}\"", 0.3)
+        escaped_entry_name = escape_cli_input(entry_name)
+        await self.keepass_cli.run_command(f"rm {escaped_entry_name}", 0.3)
 
     async def create_database(self, database_path: str, password: str):
         await self.keepass_cli.create_database(database_path, password)

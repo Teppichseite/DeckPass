@@ -1,6 +1,7 @@
 import asyncio
 from logging import Logger
 import subprocess
+from utils import escape_cli_input
 
 class KeypassCli:
 
@@ -115,12 +116,17 @@ class KeypassCli:
         return username if username != "" else "-"
 
     async def create_entry(self, entry_name: str, username: str, password: str):
-        await self._send(f"add \"{entry_name}\" -u \"{self._normalize_username(username)}\" -p")
+        escaped_entry_name = escape_cli_input(entry_name)
+        escaped_username = escape_cli_input(self._normalize_username(username))
+        await self._send(f"add {escaped_entry_name} -u {escaped_username} -p")
         
         await self._send_entry_password(password, "Enter password for new entry")
 
     async def edit_entry(self, entry_name: str, new_entry_name: str, username: str, password: str):
-        await self._send(f"edit \"{entry_name}\" -t \"{new_entry_name}\" -u \"{self._normalize_username(username)}\" -p")
+        escaped_entry_name = escape_cli_input(entry_name)
+        escaped_new_entry_name = escape_cli_input(new_entry_name)
+        escaped_username = escape_cli_input(self._normalize_username(username))
+        await self._send(f"edit {escaped_entry_name} -t {escaped_new_entry_name} -u {escaped_username} -p")
 
         await self._send_entry_password(password, "Enter new password for entry")
 
