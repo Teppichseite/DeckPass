@@ -26,7 +26,7 @@ export const RemoveEntryModal = (props: RemoveEntryModalProps) => {
         canConfirm={true}
         closeModal={props.closeModal}
       >
-        {() => <>Are you sure you want to remove {props.entry.title}?</>}
+        {() => <div style={{ whiteSpace: "normal", wordBreak: "break-word" }}>Are you sure you want to remove {props.entry.title}?</div>}
       </ModalContent>
     </ModalRoot>
   );

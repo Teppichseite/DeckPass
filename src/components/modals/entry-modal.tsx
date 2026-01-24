@@ -72,7 +72,6 @@ export const EntryModal = (props: EntryModalProps) => {
 
   const onGenerateRandomPassword = async () => {
     const randomPassword = await props.onGenerateRandomPassword();
-    console.log(randomPassword);
     setPassword(randomPassword);
   };
 

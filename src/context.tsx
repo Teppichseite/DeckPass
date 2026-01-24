@@ -142,6 +142,7 @@ export const PasswordMangerContextProvider = (
   const closePasswordManager = async () => {
     await closePasswordManagerBe();
     await setCurrentEntries(null);
+    await setCurrentEntry(null);
     securityToken = "";
   };
 
@@ -216,8 +217,8 @@ export const PasswordMangerContextProvider = (
 
   const installKeepassFlatpak = async () => {
     await handleErrors("Failed to install Keepass Flatpak", async () => {
-      await installKeepassFlatpakBe();
       setKeepassFlatpakInstallState("installing");
+      await installKeepassFlatpakBe();
     });
   };
 

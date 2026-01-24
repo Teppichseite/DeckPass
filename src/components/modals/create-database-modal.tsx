@@ -55,6 +55,8 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
     await props.onCreateDatabase(databasePath, password);
   };
 
+  const wordBreakStyle: React.CSSProperties = { whiteSpace: "normal", wordBreak: "break-word" };
+
   return (
     <ModalRoot
       onCancel={() => {
@@ -87,11 +89,11 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
 
             <div style={{ marginBottom: "40px" }}>
               {doesDatabaseFileExist && (
-                <div>Database already exists at: {databasePath}</div>
+                <div style={wordBreakStyle}>Database already exists at: {databasePath}</div>
               )}
 
               {!doesDatabaseFileExist && (
-                <div>
+                <div style={wordBreakStyle}>
                   Database will be stored at:{" "}
                   {!!trimmedTitle && !!saveFolder ? databasePath : "Not set"}
                 </div>

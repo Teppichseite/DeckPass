@@ -73,7 +73,7 @@ export const PasswordManagerClosed = () => {
             style={{
               textAlign: "center",
               marginTop: "20px",
-              marginBottom: "20px",
+              marginBottom: "20px"
             }}
           >
             <strong>No database</strong> is selected yet.
@@ -86,6 +86,8 @@ export const PasswordManagerClosed = () => {
               textAlign: "center",
               marginTop: "20px",
               marginBottom: "20px",
+              whiteSpace: "normal",
+              wordBreak: "break-word",
             }}
           >
             <div>Selected Database</div>
