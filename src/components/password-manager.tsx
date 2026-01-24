@@ -37,7 +37,9 @@ export const PasswordManagerClosed = () => {
     <OpenDatabaseModal onOpen={(password) => openPasswordManager(password)} />
   );
 
-  const createDatabaseModal = <CreateDatabaseModal onCreateDatabase={createDatabase} />;
+  const createDatabaseModal = <CreateDatabaseModal 
+  onCreateDatabase={createDatabase} 
+  userHomePath={setupState?.userHomePath || "/home/deck"} />;
 
   return (
     <PanelSection>

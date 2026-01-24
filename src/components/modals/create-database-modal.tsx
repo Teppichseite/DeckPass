@@ -7,6 +7,7 @@ import { PasswordInput } from "../password-input";
 import { doesFileExistBe } from "../../backend";
 
 export interface CreateDatabaseModalProps extends ModalRootProps {
+  userHomePath: string;
   onCreateDatabase: (databasePath: string, password: string) => Promise<void>;
 }
 
@@ -29,7 +30,7 @@ export const CreateDatabaseModal = (props: CreateDatabaseModalProps) => {
   const databasePath = `${saveFolder}/${trimmedTitle}.kdbx`;
 
   const onSelectFolder = async () => {
-    await openFilePicker(FileSelectionType.FOLDER, "/home/deck", false, true).then(
+    await openFilePicker(FileSelectionType.FOLDER, props.userHomePath, false, true).then(
       async (res) => {
         setSaveFolder(res.path);
       }
