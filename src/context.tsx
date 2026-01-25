@@ -227,11 +227,11 @@ export const PasswordMangerContextProvider = (
       return;
     }
 
-    const refreshMs = 5 * 1000;
+    const refreshMs = 2 * 1000;
     let interval = setInterval(async () => {
       const installState = await checkKeepassFlatpakInstallStateBe();
       setKeepassFlatpakInstallState(installState);
-      if (["done", "error"].includes(installState)) {
+      if (["initial", "done", "error"].includes(installState)) {
         clearInterval(interval);
       }
     }, refreshMs);
