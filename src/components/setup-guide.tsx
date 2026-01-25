@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import { usePasswordManagerContext } from "../context";
 import { ButtonItemIconContent } from "./shared";
-import { KeepassFlatpakInstallState } from "../interfaces";
+import { KeepassFlatpakInstallState, SetupState } from "../interfaces";
 
 const deckPassGithubUrl = "https://github.com/Teppichseite/DeckPass";
 
@@ -52,13 +52,26 @@ export const SetupGuide = () => {
   );
 };
 
+const getInstallState = (
+  setupState: SetupState | null,
+  keepassFlatpakInstallState: KeepassFlatpakInstallState
+): KeepassFlatpakInstallState => {
+  if (setupState?.areDependenciesSetup) {
+    return "done";
+  }
+
+  if (keepassFlatpakInstallState === "done" && !setupState?.areDependenciesSetup) {
+    return "initial";
+  }
+
+  return keepassFlatpakInstallState;
+};
+
 const KeypassInstallSteps = () => {
   const { setupState, installKeepassFlatpak, keepassFlatpakInstallState } =
     usePasswordManagerContext();
 
-  const installState = setupState?.areDependenciesSetup
-    ? "done"
-    : keepassFlatpakInstallState;
+  const installState = getInstallState(setupState, keepassFlatpakInstallState);
 
   const isInstallDisabled = ["done", "installing"].includes(installState);
 
