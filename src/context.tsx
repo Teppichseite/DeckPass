@@ -123,6 +123,7 @@ export const PasswordMangerContextProvider = (
       });
       await setCurrentEntries(null);
       await setCurrentEntry(null);
+      setCurrentEntryDetails(null);
     }
   };
 
@@ -278,6 +279,9 @@ export const PasswordMangerContextProvider = (
   ) => {
     await handleErrors("Failed to edit entry", async () => {
       await editEntryBe(securityToken, title, newTitle, username, password);
+      if(title !== newTitle) {
+        await toggleCurrentEntry(null, "copy");
+      }
       await reloadEntries();
     });
   };
