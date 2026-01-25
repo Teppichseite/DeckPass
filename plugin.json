@@ -1,7 +1,7 @@
 {
   "name": "DeckPass",
   "author": "Teppichseite",
-  "flags": ["debug"],
+  "flags": [],
   "api_version": 1,
   "publish": {
     "tags": ["password", "password-manager", "keepass", "utility", "clipboard"],
