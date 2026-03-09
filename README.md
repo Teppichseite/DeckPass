@@ -18,7 +18,7 @@ Internally it uses KeePassXC.
 
 ## Plugin Setup
 1. You can install the Plugin in the following ways:
-    1. Download the plugin from the **Decky Plugin Store** (Not available yet)
+    1. Download the plugin from the **Decky Plugin Store**
     2. Install the plugin from the **releases page**
     3. **Build the plugin yourself**
 2. Open DeckPass in the **Steam Quick Access Menu**
